@@ -68,7 +68,7 @@
         <title>Blog | Chris Conley</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="<?php bloginfo('stylesheet_url'); ?>" rel="stylesheet">
-        <link href="http://csconley.com/favicon.ico" rel="icon">
+        <link href="favicon.ico" rel="icon">
 
         <style>
             .popover {
@@ -85,7 +85,7 @@
 
         <!-- This is the code for the nav bar -->
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        <script src="http://csconley.com/js/bootstrap.js"></script>
+        <script src="/js/bootstrap.js"></script>
 
         <div class="navbar navbar-inverse navbar-static-top">
             <div class="container">
