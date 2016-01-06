@@ -1,5 +1,4 @@
 <?php
-
     require_once("scripts/ayah.php");
     $ayah = new AYAH();
 
@@ -101,6 +100,12 @@
 
                 <div class="collapse navbar-collapse navHeaderCollapse">
                     <ul class="nav navbar-nav navbar-right">
+                        <?php if(is_user_logged_in()) : ?>
+                            <li><a href="https://blog.csconley.com/wp-admin">Dashboard</a><li>
+                            <?php wp_loginout(); ?>
+                        <?php else : ?>
+                            <li><a href="https://blog.csconley.com/wp-login.php">Log In</a><li>
+                        <?php endif; ?>
                         <li class="active"><a href="http://blog.csconley.com">Blog</a><li>
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Projects/Profiles <b class="caret"></b></a>
