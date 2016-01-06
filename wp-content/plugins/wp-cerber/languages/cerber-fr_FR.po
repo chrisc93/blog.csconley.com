@@ -1,0 +1,674 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Cerber\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-11-06 16:07+0100\n"
+"PO-Revision-Date: 2015-11-06 16:08+0100\n"
+"Last-Translator: Gregory <mail@wpcerber.com>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-KeywordsList: _:1;gettext:1;dgettext:2;ngettext:1,2;dngettext:2,3;__:1;_e:1;_c:1;_n:1,2;_n_noop:1,2;_nc:1,2;__ngettext:1,2;__ngettext_noop:1,2;_x:1,2c;_ex:1,2c;_nx:1,2,4c;_nx_noop:1,2,3c;_n_js:1,2;_nx_js:1,2,3c;esc_attr__:1;esc_html__:1;esc_attr_e:1;esc_html_e:1;esc_attr_x:1,2c;esc_html_x:1,2c;comments_number_link:2,3;t:1;st:1;trans:1;transChoice:1,2\n"
+"X-Generator: Poedit 1.8.1\n"
+"X-Loco-Target-Locale: fr_FR\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+#: ../new_features.php:12 ../dashboard.php:650
+msgid "Cerber Quick View"
+msgstr "Cerber aperçu"
+
+#: ../new_features.php:43 ../dashboard.php:222 ../dashboard.php:331
+#: ../dashboard. php:371 ../dashboard.php:700
+msgid "Activity"
+msgstr "Activité"
+
+#: ../new_features.php:43 ../dashboard.php:370 ../dashboard.php:567
+#: ../dashboard. php:576 ../dashboard.php:632 ../dashboard.php:700
+#: ../dashboard.php:871
+msgid "Access Lists"
+msgstr "Listes d’accès"
+
+#: ../new_features.php:43 ../dashboard.php:372 ../dashboard.php:700
+msgid "Lockouts"
+msgstr "Blocages"
+
+#: ../dashboard.php:31 ../dashboard.php:63
+msgid "Remove"
+msgstr "Supprimer"
+
+#: ../dashboard.php:33 ../dashboard.php:222
+msgid "IP"
+msgstr "IP"
+
+#: ../dashboard.php:33 ../dashboard.php:222
+msgid "Hostname"
+msgstr "Hôte"
+
+#: ../dashboard.php:33
+msgid "Expires"
+msgstr "Expire le"
+
+#: ../dashboard.php:37 ../dashboard.php:233
+#, php-format
+msgid "Showing last %d records from %d"
+msgstr "Affichage de %d derniers enregistrements sur %d"
+
+#: ../dashboard.php:40
+msgid "Hint"
+msgstr "Astuce"
+
+#: ../dashboard.php:40
+msgid "To view activity, click on the IP"
+msgstr "Pour voir l’activité relative à cette IP, cliquez sur l’IP"
+
+#: ../dashboard.php:42
+msgid "No lockouts at the moment. The sky is clear."
+msgstr "Pas de blocage pour le moment. Tout va bien dans le meilleur des mondes."
+
+#: ../dashboard.php:51 ../dashboard.php:695
+msgid "White IP Access List"
+msgstr "Liste blanche (IP White List)"
+
+#: ../dashboard.php:51
+msgid "These IPs will never be locked out"
+msgstr "Ces adresses IP ne seront jamais bloquées"
+
+#: ../dashboard.php:52 ../dashboard.php:696
+msgid "Black IP Access List"
+msgstr "Liste Noire (IP Black List)"
+
+#: ../dashboard.php:52
+msgid "Nobody can log in from these IPs"
+msgstr "Ces adresses IP seront rejetées."
+
+#: ../dashboard.php:53
+msgid "Your IP"
+msgstr "Votre IP"
+
+#: ../dashboard.php:54
+msgid "Note: You can add a subnet Class C with the format like this: xxx.xxx.xxx.*"
+msgstr "Note: vous pouvez ajouter un sous-réseau de class C avec le format suivant : xxx.xxx.xxx.*"
+
+#: ../dashboard.php:63
+msgid "Check for activity"
+msgstr "Voir l’activité"
+
+#: ../dashboard.php:66
+msgid "List is empty"
+msgstr "La liste est vide"
+
+#: ../dashboard.php:79
+#, php-format
+msgid "Address %s was added to White IP Access List"
+msgstr "L’adresse %s a été ajoutée à la Liste Blanche"
+
+#: ../dashboard.php:84
+#, php-format
+msgid "Address %s was added to Black IP Access List"
+msgstr "L’adresse %s a été ajoutée à la Liste Noire"
+
+#: ../dashboard.php:86
+msgid "You can't add your IP address"
+msgstr "Vous ne pouvez pas ajouter votre adresse IP"
+
+#: ../dashboard.php:122
+msgid "unknown"
+msgstr "inconnu"
+
+#: ../dashboard.php:141
+msgid "Message has been sent to "
+msgstr "Le message à été envoyé à "
+
+#: ../dashboard.php:147
+#, php-format
+msgid "Lockout for %s was removed"
+msgstr "Le blocage de %s a été levé"
+
+#: ../dashboard.php:154
+msgid "Settings saved."
+msgstr "Paramètres sauvegardés."
+
+#: ../dashboard.php:222
+msgid "Date"
+msgstr "Date"
+
+#: ../dashboard.php:222
+msgid "Local User"
+msgstr "Utilisateur local"
+
+#: ../dashboard.php:222
+msgid "Username used"
+msgstr "Identifiant utilisé"
+
+#: ../dashboard.php:230
+msgid "Show only"
+msgstr "N’afficher que"
+
+#: ../dashboard.php:236
+msgid "No activity has been logged."
+msgstr "Aucune activité n’a été notée"
+
+#: ../dashboard.php:246
+msgid "Logged in"
+msgstr "Connexion réussie"
+
+#: ../dashboard.php:247
+msgid "Logged out"
+msgstr "Déconnexion"
+
+#: ../dashboard.php:248
+msgid "Login failed"
+msgstr "Connexion échouée"
+
+#: ../dashboard.php:249
+msgid "IP blocked"
+msgstr "IP bloquée"
+
+#: ../dashboard.php:250
+msgid "Subnet blocked"
+msgstr "Sous-réseau bloqué"
+
+#: ../dashboard.php:251
+msgid "Citadel activated!"
+msgstr "Citadelle activée !"
+
+#: ../dashboard.php:252
+msgid "Locked out"
+msgstr "Bloqué"
+
+#: ../dashboard.php:253
+msgid "IP blacklisted"
+msgstr "IP blacklistées"
+
+#: ../dashboard.php:254
+msgid "Password changed"
+msgstr "Changement de mot de passe"
+
+#: ../dashboard.php:267
+msgid "WP Cerber Settings"
+msgstr "Préférences WP Cerber"
+
+#: ../dashboard.php:308
+msgid "Limit login attempts"
+msgstr "Limitation des tentatives de connexion"
+
+#: ../dashboard.php:309
+msgid "Attempts"
+msgstr "Tentatives"
+
+#: ../dashboard.php:310
+msgid "Lockout duration"
+msgstr "Durée du blocage"
+
+#: ../dashboard.php:310 ../dashboard.php:327
+msgid "minutes"
+msgstr "minutes"
+
+#: ../dashboard.php:311
+msgid "Aggressive lockout"
+msgstr "Blocage aggressif"
+
+#: ../dashboard.php:312 ../dashboard.php:329
+msgid "Notifications"
+msgstr "Notifications"
+
+#: ../dashboard.php:313
+msgid "Site connection"
+msgstr "Connexion au site"
+
+#: ../dashboard.php:313
+msgid "My site is behind a reverse proxy"
+msgstr "Mon site se trouve derrière un reverse proxy"
+
+#: ../dashboard.php:315
+msgid "Proactive security rules"
+msgstr "Règles de sécurité proactives"
+
+#: ../dashboard.php:316
+msgid "Block subnet"
+msgstr "Bloquer les sous-réseaux"
+
+#: ../dashboard.php:316
+msgid "Always block entire subnet Class C of intruders IP"
+msgstr "Toujours bloquer le sous-réseau complet de classe C des IP intruses"
+
+#: ../dashboard.php:317
+msgid "Non-existent users"
+msgstr "Utilisateurs inexistants"
+
+#: ../dashboard.php:317
+msgid "Immediately block IP when attempting to login with a non-existent username"
+msgstr "Bloquer immédiatement l’IP si la tentative de connexion est faite avec un identifiant utilisateur inexistant"
+
+#: ../dashboard.php:318
+msgid "Request wp-login.php"
+msgstr "Requête sur wp-login.php"
+
+#: ../dashboard.php:318
+msgid "Immediately block IP after any request to wp-login.php"
+msgstr "Bloquer immédiatement l’IP si elle tente d’accéder au fichier wp-login.php"
+
+#: ../dashboard.php:319
+msgid "Redirect dashboard requests"
+msgstr "Redirection des requêtes du tableau de bord"
+
+#: ../dashboard.php:319
+msgid "Disable automatic redirecting to the login page when /wp-admin/ is requested by an unauthorized request"
+msgstr "Désactiver la redirection automatique sur la page de login lorsque /wp-admin/ est demandé lors d’une requête non-autorisée"
+
+#: ../dashboard.php:321
+msgid "Custom login page"
+msgstr "Page de connexion personnalisée"
+
+#: ../dashboard.php:322
+msgid "Custom login URL"
+msgstr "URL de connexion personnalisée"
+
+#: ../dashboard.php:322
+msgid "must not overlap with the existing pages or posts slug"
+msgstr "Ne doit pas chevaucher l’URL d’une page ou d’un post existant"
+
+#: ../dashboard.php:323
+msgid "Disable wp-login.php"
+msgstr "Désactiver wp-login.php"
+
+#: ../dashboard.php:323
+msgid "Block direct access to wp-login.php and return HTTP 404 Not Found Error"
+msgstr "Bloquer l’accès direct à wp-login.php et retourner une erreur HTTP 404 Not Found"
+
+#: ../dashboard.php:325 ../dashboard.php:697
+msgid "Citadel mode"
+msgstr "Mode Citadelle"
+
+#: ../dashboard.php:326
+msgid "Threshold"
+msgstr "Seuil"
+
+#: ../dashboard.php:327
+msgid "Duration"
+msgstr "Durée"
+
+#: ../dashboard.php:328
+msgid "Whitelist"
+msgstr "Liste blanche"
+
+#: ../dashboard.php:328
+msgid "Allow whitelist in Citadel mode"
+msgstr "Autoriser les IP de la Liste Blanche en mode Citadelle"
+
+#: ../dashboard.php:329
+msgid "Send notification to admin email"
+msgstr "Envoyer des notifications à l’administrateur"
+
+#: ../dashboard.php:329 ../dashboard.php:435
+msgid "Click to send test"
+msgstr "Cliquez pour tester"
+
+#: ../dashboard.php:332
+msgid "Keep records for"
+msgstr "Conserver l’historique pour"
+
+#: ../dashboard.php:332 ../dummy_translation.php:11
+msgid "days"
+msgstr "jours"
+
+#: ../dashboard.php:333
+msgid "Use file"
+msgstr "Uploader un fichier"
+
+#: ../dashboard.php:333
+msgid "Write failed login attempts to the file"
+msgstr "Inscrire les tentatives de connexion échouées dans un fichier de log"
+
+#: ../dashboard.php:342
+msgid "Make your protection smarter!"
+msgstr "Rendez votre protection intelligente !"
+
+#: ../dashboard.php:346
+msgid "Please enable Permalinks to use this feature. Set Permalink Settings to something other than Default."
+msgstr "Veuillez activer les Permaliens pour utiliser cette fonctionnalité. Le réglage des permaliens ne doit pas être “par défaut”."
+
+#: ../dashboard.php:349
+msgid "Be careful when enabling this options. If you forget the custom login URL you will not be able to login."
+msgstr "Soyez prudent si vous activez ces réglages. Si vous oubliez l’URL de connexion personnalisée, vous ne pourrez plus vous connecter."
+
+#: ../dashboard.php:353
+msgid "In Citadel mode nobody is able to login. Active users' sessions will not be affected."
+msgstr "En mode Citadelle, personne ne peut se connecter. Les sessions des utilisateurs déjà connectés ne seront pas impactées."
+
+#: ../dashboard.php:366
+msgid "Cerber Settings"
+msgstr "Préférences Cerber"
+
+#: ../dashboard.php:369
+msgid "Main Settings"
+msgstr "Réglages généraux"
+
+#: ../dashboard.php:374
+msgid "Tools"
+msgstr "Outils"
+
+#: ../dashboard.php:375
+msgid "Help"
+msgstr "Aide"
+
+#: ../dashboard.php:421
+#, php-format
+msgid "%s allowed retries in %s minutes"
+msgstr "%s tentatives autorisées en %s minutes"
+
+#: ../dashboard.php:426
+#, php-format
+msgid "Increase lockout duration to %s hours after %s lockouts in the last %s hours"
+msgstr "Allonger la durée du blocage à %s heures après %s blocages dans les %s dernières heures"
+
+#: ../dashboard.php:433
+msgid "Notify admin if the number of active lockouts above"
+msgstr "Notifier l’administrateur si le nombre de blocages actifs excède "
+
+#: ../dashboard.php:438
+#, php-format
+msgid "Enable after %s failed login attempts in last %s minutes"
+msgstr "Activer après %s tentatives échouées dans les %s dernières minutes"
+
+#: ../dashboard.php:473
+msgid "Attention! You have changed the login URL! The new login URL is"
+msgstr "Attention !  Vous avez changer l’URL de connexion ! La nouvelle URL est "
+
+#: ../dashboard.php:512
+msgid "Comments"
+msgstr "Commentaires"
+
+#: ../dashboard.php:512
+msgid "Last login"
+msgstr "Dernière connexion"
+
+#: ../dashboard.php:512
+msgid "Failed attempts in last 24 hours"
+msgstr "Connexions echouees des dernieres 24h"
+
+#: ../dashboard.php:512
+msgid "Date of registration"
+msgstr "Date d’inscription"
+
+#: ../dashboard.php:539 ../dashboard.php:678
+msgid "Never"
+msgstr "Jamais"
+
+#: ../dashboard.php:563
+msgid "Export settings to the file"
+msgstr "Exporter les préférences"
+
+#: ../dashboard.php:564
+msgid "When you click the button below you will get a configuration file, which you can upload on another site."
+msgstr "Vous obtiendrez un fichier de configuration lorsque vous cliquerez sur le bouton ci-dessous. Vous pourrez ensuite utiliser ce fichier de configuration sur d’autre site."
+
+#: ../dashboard.php:565
+msgid "What do you want to export?"
+msgstr "Que voulez-vous exporter ?"
+
+#: ../dashboard.php:566 ../dashboard.php:575 ../dashboard.php:700
+#: ../dashboard. php:870
+msgid "Settings"
+msgstr "Réglages"
+
+#: ../dashboard.php:568
+msgid "Download file"
+msgstr "Télécharger le fichier"
+
+#: ../dashboard.php:570
+msgid "Import settings from the file"
+msgstr "Importer les préférences"
+
+#: ../dashboard.php:571
+msgid "When you click the button below, file will be uploaded and all existing settings will be overridden."
+msgstr "Importer des préférences écrasera les réglages précédents."
+
+#: ../dashboard.php:572
+msgid "Select file to import."
+msgstr "Sélectionnez un fichier."
+
+#: ../dashboard.php:572
+#, php-format
+msgid "Maximum upload file size: %s."
+msgstr "Taille maximum de fichier autorisée : %s"
+
+#: ../dashboard.php:575
+msgid "What do you want to import?"
+msgstr "Que voulez-vous importer ?"
+
+#: ../dashboard.php:577
+msgid "Upload file"
+msgstr "Uploader un fichier"
+
+#: ../dashboard.php:611
+msgid "No file was uploaded or file is corrupted"
+msgstr "Le fichier n’a pas été uploadé ou est corrompu"
+
+#: ../dashboard.php:632
+msgid "Error while updating"
+msgstr "Erreur lors de la mise à jour"
+
+#: ../dashboard.php:635
+msgid "Settings has imported successfully from"
+msgstr "Les préférences ont été importées avec succès depuis"
+
+#: ../dashboard.php:639
+msgid "Error while parsing file"
+msgstr "Error lors de l’analyse du fichier"
+
+#: ../dashboard.php:682
+msgid "active"
+msgstr "Active"
+
+#: ../dashboard.php:682 ../dashboard.php:798
+msgid "deactivate"
+msgstr "Citadelle activée !"
+
+#: ../dashboard.php:684
+msgid "not active"
+msgstr "Inactif"
+
+#: ../dashboard.php:685
+msgid "disabled"
+msgstr "Désactivée"
+
+#: ../dashboard.php:690
+msgid "failed attempts"
+msgstr "Limitation des tentatives de connexion"
+
+#: ../dashboard.php:690 ../dashboard.php:691
+msgid "in 24 hours"
+msgstr "en 24 heures"
+
+#: ../dashboard.php:690 ../dashboard.php:691
+msgid "view all"
+msgstr "Voir tous"
+
+#: ../dashboard.php:691
+msgid "lockouts"
+msgstr "Blocages"
+
+#: ../dashboard.php:693
+msgid "Lockouts at the moment"
+msgstr "Pas de blocage pour le moment. Tout va bien dans le meilleur des mondes."
+
+#: ../dashboard.php:694
+msgid "Last lockout"
+msgstr "Le dernier blocage a été ajouté"
+
+#: ../dashboard.php:695 ../dashboard.php:696 ../dashboard.php:853
+msgid "entry"
+msgid_plural "entries"
+msgstr[0] "entrée"
+msgstr[1] "entrées"
+
+#: ../dashboard.php:751
+msgid "Confused about some settings?"
+msgstr "Confus au sujet de certains paramètres ?"
+
+#: ../dashboard.php:752
+msgid "You can easily load default recommended settings using button below"
+msgstr "Vous pouvez facilement charger les paramètres recommandés par défaut en utilisant bouton ci-dessous"
+
+#: ../dashboard.php:754
+msgid "Load default settings"
+msgstr "Charger les paramètres par défaut"
+
+#: ../dashboard.php:756 ../dashboard.php:1039
+msgid "Are you sure?"
+msgstr "Etes-vous sûr ?"
+
+#: ../dashboard.php:762
+msgid "doesn't affect Custom login URL and Access Lists"
+msgstr "n’affecte pas l’URL de connexion personnalisée ni les Listes d’accès"
+
+#: ../dashboard.php:767
+msgid "Read our blog"
+msgstr "Lire notre blog"
+
+#: ../dashboard.php:774
+msgid "Donate"
+msgstr "Faire un don"
+
+#: ../dashboard.php:797
+msgid "Attention! Citadel mode is now active. Nobody is able to login."
+msgstr "Attention ! Le mode Citadelle est actif. Plus personne ne peut se connecter."
+
+#: ../dashboard.php:824
+msgid "New version is available"
+msgstr "Nouvelle version disponible"
+
+#: ../dashboard.php:827
+#, php-format
+msgid "Update to version %s of WP Cerber"
+msgstr "Mettre à jour WP Cerber à la version %s"
+
+#: ../dummy_translation.php:12
+msgid "weeks"
+msgstr "semaines"
+
+#: ../dummy_translation.php:13
+msgid "months"
+msgstr "mois"
+
+#: ../dummy_translation.php:14
+msgid "Messages"
+msgstr "Messages"
+
+#: ../dummy_translation.php:15
+msgid "Support"
+msgstr "Support"
+
+#: ../dummy_translation.php:16
+msgid "Today"
+msgstr "Aujourd’hui"
+
+#. Name of the plugin
+msgid "WP Cerber"
+msgstr ""
+
+#. URI of the plugin
+msgid "http://wpcerber.com"
+msgstr ""
+
+#. Description of the plugin
+msgid "Protects site against brute force attacks. Comprehensive control of user activity. Restrict login by IP access lists. Limit login attempts. Feel free to contact developer via wpcerber@gmail.com or at the site <a href=\"http://wpcerber.com\">wpcerber.com</a>."
+msgstr "Protection contre les attaques “brute force”. Suivi des connexions utilisateurs. Restriction des connexions par liste d’adresse IP. Limitation des tentatives de connexions. Vous pouvez contacter le développeur du plugin à l’adresse wpcerber@gmail.com ou via le site <a href=\"http://wpcerber.com\">wpcerber.com</a>."
+
+#. Author of the plugin
+msgid "Gregory M"
+msgstr ""
+
+#: ../wp-cerber.php:162
+msgid "You are not allowed to log in. Ask your administrator for assistance."
+msgstr "Vous n’êtes pas autorisé à vous connecté. Contactez l’administrateur si vous avez besoin d’assistance."
+
+#: ../wp-cerber.php:166
+#, php-format
+msgid "You have reached the login attempts limit. Please try again in %d minutes."
+msgstr "Vous avez atteint le nombre maximum de tentatives autorisé. Veuillez réessayer dans %d minutes."
+
+#: ../wp-cerber.php:179
+#, php-format
+msgid "You have only one attempt remaining."
+msgid_plural "You have %d attempts remaining."
+msgstr[0] "Il ne vous reste qu’une seule tentative."
+msgstr[1] "Il vous reste %d tentatives."
+
+#: ../wp-cerber.php:589 ../wp-cerber.php:603 ../wp-cerber.php:612
+msgid "WP Cerber notify"
+msgstr "Préférences WP Cerber"
+
+#: ../wp-cerber.php:589
+msgid "Citadel mode is activated"
+msgstr "Citadelle activée !"
+
+#: ../wp-cerber.php:591
+#, php-format
+msgid "Citadel mode is activated after %d failed login attempts in %d minutes."
+msgstr "Le mode Citadelle est activé après %d tentatives de connexion échouées en %d minutes."
+
+#: ../wp-cerber.php:592
+#, php-format
+msgid "Last failed attempt was at %s from IP %s with user login: %s."
+msgstr "La dernière tentative échouée date du %s. Elle vient de l’IP %s. Le nom d’utilisateur utilisé est : %s."
+
+#: ../wp-cerber.php:593
+msgid "View activity in dashboard"
+msgstr "Voir l’activité dans le tableau de bord"
+
+#: ../wp-cerber.php:594 ../wp-cerber.php:608
+msgid "Change notification settings"
+msgstr "Changer les préférences de notifications"
+
+#: ../wp-cerber.php:603
+msgid "Number of lockouts is growing up"
+msgstr "Notification WP Cerber : le nombre de blocage augmente"
+
+#: ../wp-cerber.php:605
+msgid "Number of active lockouts"
+msgstr "Nombre de blocages actifs"
+
+#: ../wp-cerber.php:606
+msgid "Last lockout was added"
+msgstr "Le dernier blocage a été ajouté"
+
+#: ../wp-cerber.php:607
+msgid "View lockouts in dashboard"
+msgstr "Voir les blocages dans le tableau de bord"
+
+#: ../wp-cerber.php:612
+msgid "New Custom login URL"
+msgstr "URL de connexion personnalisée"
+
+#: ../wp-cerber.php:617
+msgid "This message was sent by"
+msgstr "Ce message a été envoyé par"
+
+#: ../wp-cerber.php:753
+#, php-format
+msgid "The WP Cerber requires PHP %s or higher. You are running"
+msgstr "WP Cerber nécessite PHP %s ou supérieur. Vous avez actuellement "
+
+#: ../wp-cerber.php:757
+#, php-format
+msgid "The WP Cerber requires WordPress %s or higher. You are running"
+msgstr "WP Cerber nécessite WordPress %s ou supérieur. Vous avez actuellement"
+
+#: ../wp-cerber.php:807
+msgid "Can't activate WP Cerber due to a database error."
+msgstr "Impossible d’activer WP Cerber à cause d’une erreur de base de données"
+
+#: ../wp-cerber.php:814
+msgid "WP Cerber is now active and has started protecting your site."
+msgstr "WP Cerber est maintenant actif. Votre site est maintenant sous sa protection."
+
+#: ../wp-cerber.php:815
+msgid "Check settings here"
+msgstr "Vérifier les préférences ici"
