@@ -100,22 +100,31 @@
 
                 <div class="collapse navbar-collapse navHeaderCollapse">
                     <ul class="nav navbar-nav navbar-right">
-                        <?php if(is_user_logged_in()) : ?>
-                            <li><a href="https://blog.csconley.com/wp-admin">Dashboard</a><li>
-                            <?php wp_loginout(); ?>
-                        <?php else : ?>
-                            <li><a href="https://blog.csconley.com/wp-login.php">Log In</a><li>
-                        <?php endif; ?>
-                        <li class="active"><a href="http://blog.csconley.com">Blog</a><li>
+                        <li class="active dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Blog <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="https://blog.csconley.com">Home</a></li>
+                                <?php if(is_user_logged_in()) : ?>
+                                    <li><a href="https://blog.csconley.com/wp-admin">
+                                            <?php $current_user = wp_get_current_user(); echo $current_user->user_login; ?>
+                                            <?php echo get_avatar($current_user->user_email, 25); ?>
+                                        </a>
+                                    </li>
+                                    <li><?php wp_loginout($_SERVER['REQUEST_URI']); ?></li>
+                                <?php else : ?>
+                                    <li><?php wp_loginout($_SERVER['REQUEST_URI']); ?></li>
+                                <?php endif; ?>
+                            </ul>
+                        </li>
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Projects/Profiles <b class="caret"></b></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="https://github.com/chrisc93" target="_blank">Github</a></li>
-                                    <li><a href="https://www.linkedin.com/pub/chris-conley/90/922/3b7" target="_blank">LinkedIn</a></li>
-                                    <li><a href="https://twitter.com/ChrisConley804" target="_blank">Twitter</a></li>
-                                    <li><a href="http://chat.csconley.com" target="_blank">Chat beta</a></li>
-                                    <li><a href="http://forum.xda-developers.com/member.php?u=5276780" target="_blank">XDA Developers</a></li>
-                                </ul>
+                            <ul class="dropdown-menu">
+                                <li><a href="https://github.com/chrisc93" target="_blank">Github</a></li>
+                                <li><a href="https://www.linkedin.com/pub/chris-conley/90/922/3b7" target="_blank">LinkedIn</a></li>
+                                <li><a href="https://twitter.com/ChrisConley804" target="_blank">Twitter</a></li>
+                                <li><a href="http://chat.csconley.com" target="_blank">Chat beta</a></li>
+                                <li><a href="http://forum.xda-developers.com/member.php?u=5276780" target="_blank">XDA Developers</a></li>
+                            </ul>
                         <li><a href="http://csconley.com/about.php">About</a><li>
                         <li><a href="#contact" data-toggle="modal">Contact</a><li>
                     </ul>

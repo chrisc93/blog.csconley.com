@@ -4,13 +4,17 @@
         <div class="col-md-9">
             <div class="panel panel-default panel-body">
                 <?php while(have_posts()) : the_post(); ?>
-                    <h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
-                    <p class="text-muted">Posted by <?php the_author(); ?> on <?php the_time('F jS, Y'); ?></p>
+                    <div class="row">
+                    <div class="col-md-1">
+                        <?php echo get_avatar(get_the_author_meta('user_email'), 70); ?>
+                    </div>
+                    <div class="col-md-11">
+                        <h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+                        <p class="text-muted">Posted by <?php the_author(); ?> on <?php the_time('F jS, Y'); ?></p>
+                    </div>
+                    </div>
                     <p><?php the_content(''); ?></p>
                 <?php endwhile; wp_reset_query(); ?>
-            </div>
-            <div class="panel panel-default panel-body">
-                <?php comments_template(); ?>
             </div>
         </div>
         <div class="col-md-3">
