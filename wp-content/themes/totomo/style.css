@@ -359,18 +359,6 @@ div.aligncenter,
   display: block;
   z-index: 2;
 }
-.container .navbar-header {
-  float: right;
-  margin-left: 20px;
-  margin-right: 0;
-}
-.navbar-toggle {
-  margin: 18px 0 0;
-  padding: 0;
-  width: 32px;
-  height: 26px;
-  position: relative;
-}
 .navbar-toggle .icon-bars {
   transition: all 0.3s;
   font-size: 0;
@@ -1340,11 +1328,9 @@ div.aligncenter,
 div.navbar.navbar-inverse.navbar-static-top {
 	margin-bottom: 30px;
 }
-
 #main > section > header,
 #main > header {
 	    margin: 0px 0 30px;
 	    padding-bottom: 0px;
 	    border-bottom: none;
 }
-
