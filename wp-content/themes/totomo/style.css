@@ -1079,7 +1079,7 @@ div.aligncenter,
   background-clip: padding-box;
   background: #fff;
   padding: 45px 70px 45px;
-  margin-top: 50px;
+  margin-top: 30px;
   border: 1px solid #E9E9E9;
   overflow: hidden;
   padding-top: 45px;
@@ -1330,7 +1330,10 @@ div.navbar.navbar-inverse.navbar-static-top {
 }
 #main > section > header,
 #main > header {
-	    margin: 0px 0 30px;
-	    padding-bottom: 0px;
-	    border-bottom: none;
+	margin: 0px 0 30px;
+	padding-bottom: 0px;
+	border-bottom: none;
+}
+.wrap-string {
+	word-wrap: break-word;
 }
