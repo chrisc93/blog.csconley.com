@@ -16,7 +16,7 @@
 
 		printf( '
 			<header class="entry-header">
-				<h2 class="entry-title"><a href="%s" rel="bookmark" title="%s">%s</a></h2>
+				<h1 class="entry-title"><a href="%s" rel="bookmark" title="%s">%s</a></h2>
 			</header>',
 			esc_url( get_permalink() ),
 			the_title_attribute( 'echo=0' ),
@@ -28,7 +28,7 @@
 		<?php
 			totomo_posted_on();
 
-			$main_content = apply_filters( 'the_content', get_the_content( __( 'Read More', 'totomo' ) ) );
+			$main_content = the_excerpt();
 			if ( 'audio' == $post_format || 'video' == $post_format ) {
 				$media = get_media_embedded_in_content( $main_content, array( 'audio', 'video', 'object', 'embed', 'iframe' ) );
 				if ( ! empty( $media ) ) {

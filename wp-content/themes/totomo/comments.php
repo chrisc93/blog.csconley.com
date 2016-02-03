@@ -4,7 +4,7 @@ if ( post_password_required() ) {
 }
 ?>
 <?php if ( have_comments() ) : ?>
-	<div class="comments content-box">
+	<div id="comments" class="comments content-box">
 	<h2 class="comments-title"><?php comments_number( __( 'Comments', 'totomo' ), __( '1 Comment', 'totomo' ), __( '% Comments', 'totomo' ) ); ?></h2>
 
 	<ul class="comment-list">
@@ -40,9 +40,6 @@ if ( comments_open() ) {
 						</fieldset>',
 			'email'  => '<fieldset class="email-container">
 							<input type="text" id="email" class="tb-my-input" name="email" tabindex="2" value="' . esc_attr( $commenter['comment_author_email'] ) . '" size="32"' . $aria_req . ' placeholder="' . __( 'Email*', 'totomo' ) . '">
-						</fieldset>',
-			'url'    => '<fieldset class="url-container">
-							<input type="text" id="url" class="tb-my-input" name="url" tabindex="3" value="' . esc_attr( $commenter['comment_author_url'] ) . '" size="32"' . $aria_req . ' placeholder="' . __( 'Url', 'totomo' ) . '">
 						</fieldset>',
 		) ),
 		'comment_field'        => '<fieldset class="message">

@@ -24,7 +24,7 @@ get_header(); ?>
 			<?php while ( have_posts() ) : the_post(); ?>
 
 				<?php
-					get_template_part( 'content' );
+					get_template_part( 'content', 'index' );
 				?>
 
 			<?php endwhile; ?>
@@ -34,8 +34,10 @@ get_header(); ?>
 				'prev_text' => '',
 				'next_text' => '',
 			);
-			echo '<div class="blog-pagination">' . paginate_links( $args ) . '</div>' ;
-			?>
+			if (count(paginate_links( $args )) != 0) {
+				echo '<div class="blog-pagination">' . paginate_links( $args ) . '</div>' ;
+			}
+		?>
 
 		<?php else : ?>
 

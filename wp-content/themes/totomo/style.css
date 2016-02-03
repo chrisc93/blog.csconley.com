@@ -39,6 +39,7 @@ Nicolas Gallagher and Jonathan Neal http://necolas.github.com/normalize.css/
 7.0 Comments
 8.0 Footer
 9.0 Media Queries
+10.0 Custom
 --------------------------------------------------------------*/
 /*--------------------------------------------------------------
 1.0 Typography
@@ -87,7 +88,7 @@ a:focus {
   outline: 0;
 }
 a {
-  color: #74c86e;
+  color: rgba(51, 55, 183, 0.65);
   -webkit-transition: 0.3s ease;
   -moz-transition: 0.3s ease;
   -o-transition: 0.3s ease;
@@ -96,7 +97,7 @@ a {
 }
 a:hover,
 a:focus {
-  color: #74c86e;
+  color: rgba(51, 55, 183, 0.65);
   text-decoration: none;
 }
 blockquote {
@@ -509,16 +510,14 @@ div.aligncenter,
 5.2 Pagination
 --------------------------------------------------------------*/
 .blog-pagination {
-  padding-bottom: 45px;
-  border-bottom: 2px solid #e9e9e9;
   overflow: hidden;
   width: 100%;
-  margin: 100px auto 45px;
+  margin: 30px auto 30px;
   text-align: center;
 }
 .blog-pagination .page-numbers {
-  background-color: #74c86e;
-  border-bottom: 2px solid #51ba49;
+  background-color: rgba(51, 55, 183, 0.65);
+  border-bottom: 2px solid #31708f;
   border-radius: 3px;
   display: block;
   text-align: center;
@@ -543,13 +542,11 @@ div.aligncenter,
   font-family: 'FontAwesome';
 }
 .blog-pagination .next {
-  float: right;
 }
 .blog-pagination .next:before {
   content: "\f054";
 }
 .blog-pagination .prev {
-  float: left;
 }
 .blog-pagination .prev:before {
   content: "\f053";
@@ -617,7 +614,7 @@ div.aligncenter,
 .site-main article.post {
   background: #fff;
   border-radius: 6px 6px 6px 6px;
-  margin-bottom: 100px;
+  margin-bottom: 30px;
   border: 1px solid #E9E9E9;
 }
 .site-main article.page .entry-content,
@@ -715,8 +712,9 @@ div.aligncenter,
   color: #c1c0c0;
 }
 .site-main .entry-content .post-meta li a:hover {
-  color: #74c86e;
+  color: rgba(51, 55, 183, 0.65);
 }
+.site-main .entry-content .post-meta li.fa-user,
 .site-main .entry-content .post-meta li .date,
 .site-main .entry-content .post-meta li .comments-link,
 .site-main .entry-content .post-meta li.fa-tags a {
@@ -793,14 +791,14 @@ div.aligncenter,
   background: #303337;
 }
 .home .site-content {
-  margin-top: 100px;
+  margin-top: 30px;
 }
 /*--------------------------------------------------------------
 6.4 Single
 --------------------------------------------------------------*/
 .single .site-content {
-  padding-top: 30px;
-  padding-bottom: 45px;
+  margin-top: 30px;
+  padding-bottom: 30px;
 }
 .single article.post {
   margin-bottom: 0;
@@ -834,7 +832,7 @@ div.aligncenter,
   background-clip: padding-box;
   background: #fff;
   padding: 45px 70px 45px;
-  margin-top: 50px;
+  margin-top: 30px;
   border: 1px solid #E9E9E9;
 }
 .related-article ul {
@@ -858,7 +856,7 @@ div.aligncenter,
   color: #c1c0c0;
 }
 .related-article .related-post-title:hover {
-  color: #74c86e;
+  color: rgba(51, 55, 183, 0.65);
 }
 .related-article .date {
   font-size: 14px;
@@ -871,7 +869,7 @@ div.aligncenter,
   height: 60px;
   display: block;
   float: left;
-  background-color: #74c86e;
+  background-color: rgba(51, 55, 183, 0.65);
   overflow: hidden;
   position: relative;
 }
@@ -936,7 +934,7 @@ div.aligncenter,
   background-clip: padding-box;
   background: #fff;
   padding: 45px 70px 45px;
-  margin-top: 50px;
+  margin-top: 30px;
   border: 1px solid #E9E9E9;
   overflow: hidden;
 }
@@ -992,7 +990,7 @@ div.aligncenter,
   background-clip: padding-box;
   background: #fff;
   padding: 45px 70px 45px;
-  margin-top: 50px;
+  margin-top: 30px;
   border: 1px solid #E9E9E9;
 }
 .comment-reply-title,
@@ -1112,8 +1110,8 @@ div.aligncenter,
   border-radius: 3px;
 }
 #respond form input[type="submit"] {
-  background-color: #74c86e;
-  border-bottom: 2px solid #51ba49;
+  background-color: rgba(51, 55, 183, 0.65);
+  border-bottom: 2px solid #31708f;
   border-radius: 3px;
   display: block;
   text-align: center;
@@ -1336,3 +1334,17 @@ div.aligncenter,
     margin-left: 0;
   }
 }
+/*--------------------------------------------------------------
+10.0 Custom
+--------------------------------------------------------------*/
+div.navbar.navbar-inverse.navbar-static-top {
+	margin-bottom: 30px;
+}
+
+#main > section > header,
+#main > header {
+	    margin: 0px 0 30px;
+	    padding-bottom: 0px;
+	    border-bottom: none;
+}
+

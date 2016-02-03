@@ -45,6 +45,9 @@ function totomo_posted_on() {
 	$post_format = get_post_format( get_the_ID() );
 	?>
 	<ul class="post-meta clearfix">
+		<li class="fa fa-user">
+			<?php the_author(); ?>
+		</li>
 		<li>
 			<time class="date fa fa-clock-o" datetime="<?php the_time( 'c' ); ?>" pubdate><?php the_time( get_option( 'date_format' ) ); ?></time>
 		</li>
@@ -303,7 +306,7 @@ function totomo_related_post() {
 	$args = '';
 	$args = wp_parse_args( $args, array(
 		'category__in'   => wp_get_post_categories( get_the_ID() ),
-		'posts_per_page' => 4,
+		'posts_per_page' => 10,
 		'post__not_in'   => array( get_the_ID() )
 	) );
 	$related = new WP_Query( $args );
