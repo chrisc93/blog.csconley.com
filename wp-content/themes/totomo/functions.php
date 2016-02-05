@@ -5,6 +5,18 @@
  * @package totomo
  */
 
+add_filter( 'get_archives_link', 'add_css_class_to_wp_get_archive_links'  );
+function add_css_class_to_wp_get_archive_links( $link ) {
+  $link = str_replace( 'href', 'class="small-font" href', $link );
+  return $link;
+}
+
+add_filter( 'loginout', 'add_css_class_to_wp_loginout_links');
+function add_css_class_to_wp_loginout_links( $link ) {
+  $link = str_replace( 'href', 'class="small-font" href', $link );
+  return $link;
+}
+
 if ( ! function_exists( 'totomo_setup' ) ) :
 /**
  * Sets up theme defaults and registers support for various WordPress features.

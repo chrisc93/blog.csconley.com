@@ -17,7 +17,6 @@
 	<title>Blog | Chris Conley</title>
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="theme-color" content="rgb(68, 142, 202)">
 	<link rel="pingback" href="<?php bloginfo( 'pingback_url' ); ?>">
 <?php wp_head(); ?>
 </head>
@@ -39,7 +38,6 @@
 			<div class="navbar-right">
 				<a class="navbar-brand" href="https://csconley.com">/home</a>
 				<a class="navbar-brand" href="https://csconley.com/about.php">/about</a>
-		
 			</div>
 		</div>
             </div>
