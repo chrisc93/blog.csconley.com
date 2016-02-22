@@ -1,5 +1,28 @@
 <?php
 /*
+ 	Copyright (C) 2015-16 Gregory Markov, http://wpcerber.com
+
+    Licenced under the GNU GPL
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
+// If this file is called directly, abort executing.
+if ( ! defined( 'WPINC' ) ) { exit; }
+
+/*
 	Dashboard & admin stuff
 */
 
@@ -25,24 +48,24 @@ function cerber_show_lockouts($per_page = 50){
 			if (($ip_info = unserialize(get_transient($ip_id))) && isset($ip_info['hostname'])) $hostname = $ip_info['hostname'];
 			else $hostname = '<img data-ip-id="'.$ip_id .'" class="crb-no-hn" src="'.$assets_url.'ajax-loader-ip.gif" />'."\n";
 
-			$list[]='<td>'.$ip.'</td><td>'.$hostname.'</td><td>'.cerber_date($row->block_until).'</td><td><a href="'.wp_nonce_url(add_query_arg(array('lockdelete'=>$row->ip)),'control','cerber_nonce').'">'.__('Remove','cerber').'</a></td>';
+			$list[]='<td>'.$ip.'</td><td>'.$hostname.'</td><td>'.cerber_date($row->block_until).'</td><td>'.$row->reason.'</td><td><a href="'.wp_nonce_url(add_query_arg(array('lockdelete'=>$row->ip)),'control','cerber_nonce').'">'.__('Remove','cerber').'</a></td>';
 
 		}
-		$titles = '<tr><th>'.__('IP','cerber').'</th><th>'.__('Hostname','cerber').'</th><th>'.__('Expires','cerber').'</th><th></th></tr>';
+		$titles = '<tr><th>'.__('IP','cerber').'</th><th>'.__('Hostname','cerber').'</th><th>'.__('Expires','cerber').'</th><th>'.__('Reason','cerber').'</th><th></th></tr>';
 		$table='<table class="widefat crb-table"><thead>'.$titles.'</thead><tfoot>'.$titles.'</tfoot>'.implode('</tr><tr>',$list).'</tr></table>';
 
 		$total=$wpdb->get_var('SELECT count(ip) FROM '. CERBER_BLOCKS_TABLE);
 		echo '<h3>'.sprintf(__('Showing last %d records from %d','cerber'),count($rows),$total).'</h3>';
 		echo $table;
 		cerber_page_navi($total,$per_page);
-		$msg = '<p><b>'.__('Hint','cerber').':</b> ' . __('To view activity, click on the IP','cerber').'</p>';
+		$view = '<p><b>'.__('Hint','cerber').':</b> ' . __('To view activity, click on the IP','cerber').'</p>';
 	}
-	else $msg = '<p>'.sprintf(__('No lockouts at the moment. The sky is clear.','cerber')).'</p>';
-	echo '<div class="cerber-margin">'.$msg.'</div>';
+	else $view = '<p>'.sprintf(__('No lockouts at the moment. The sky is clear.','cerber')).'</p>';
+	echo '<div class="cerber-margin">'.$view.'</div>';
 }
 
 /*
-	ACL management screen in dashboard
+	ACL management form in dashboard
 */
 function cerber_acl_form(){
 	global $wpdb;
@@ -62,7 +85,7 @@ function cerber_acl_get_table($tag){
 		$ret = '<table id="acl_'.$tag.'" class="acl_table"><tr>'.implode('</tr><tr>',$list).'</tr></table>';
 	}
 	else $ret='<p><i>'.__('List is empty','cerber').'</i></p>';
-	$ret = '<div class="acl_wrapper"><div class="acl_manager">'.$ret.'</div><form action="" method="post"><p><input type="text" name="add_acl_'.$tag.'"> <input type="submit" class="button button-primary" value="Add IP to list" ></p>'.wp_nonce_field('cerber_dashboard','cerber_nonce').'</form></div>';
+	$ret = '<div class="acl_wrapper"><div class="acl_manager">'.$ret.'</div><form action="" method="post"><p><input type="text" name="add_acl_'.$tag.'"> <input type="submit" class="button button-primary" value="'.__('Add IP to the list','cerber').'" ></p>'.wp_nonce_field('cerber_dashboard','cerber_nonce').'</form></div>';
 	return $ret;
 }
 /*
@@ -136,9 +159,9 @@ function cerber_admin_request(){
 
 	if (isset($_GET['testnotify'])) {
 		cerber_send_notify($_GET['testnotify']);
-		update_site_option('cerber_admin_message',__('Message has been sent to ','cerber').' '.get_option('admin_email'));
-		wp_safe_redirect(remove_query_arg('testnotify'));
-		exit;
+		update_site_option('cerber_admin_message',__('Message has been sent to ','cerber').' '.cerber_get_email());
+		wp_safe_redirect(remove_query_arg('testnotify')); // mandatory!
+		exit; // mandatory!
 	}
 	if (isset($_GET['lockdelete'])) {
 		$ip = $_GET['lockdelete'];
@@ -148,7 +171,7 @@ function cerber_admin_request(){
 		cerber_disable_citadel();
 	}
 	if (isset($_GET['load_settings']) && $_GET['load_settings']=='default') {
-		update_site_option(CERBER_OPT,cerber_get_defaults());
+		cerber_load_defaults();
 		update_site_option('cerber_admin_message',__('Settings saved.'));
 		wp_safe_redirect(remove_query_arg('load_settings')); // mandatory!
 		exit; // mandatory!
@@ -177,11 +200,24 @@ function cerber_show_activity($per_page = 50){
 		}
 		$where[] = 'activity IN ('.$filter.')';
 	}
+
+	$ip_text='';
 	if (isset($_GET['filter_ip'])) {
 		$filter = $_GET['filter_ip'];
 		if (strrchr($filter,'*')) $where[] = $wpdb->prepare('ip LIKE %s',str_replace('*','%',$filter)); // * means subnet, so we need LIKE
 		else $where[] = $wpdb->prepare('ip = %s',$filter);
+		if (cerber_is_ip($filter)){
+			$tag = cerber_acl_check($filter);
+			if ($tag == 'W') $tip = __('White IP Access List','cerber');
+			elseif ($tag == 'B') $tip = __('Black IP Access List','cerber');
+			if (cerber_block_check($filter)) {
+				$tip .= ' '.__('Locked out','cerber');
+			}
+			if ($tip) $tip = '('.$tip.')';
+			$ip_text='<p style="margin-bottom: 10px;"><span style="font-size: 120%; font-weight: bold;">IP: '.$filter.'</span> '.$tip.'</p>';
+		}
 	}
+
 	if (isset($_GET['filter_login'])) {
 		$where[] = $wpdb->prepare('user_login = %s',$_GET['filter_login']);
 	}
@@ -214,19 +250,29 @@ function cerber_show_activity($per_page = 50){
 			if (($ip_info = unserialize(get_transient($ip_id))) && isset($ip_info['hostname'])) $hostname = $ip_info['hostname'];
 			else $hostname = '<img data-ip-id="'.$ip_id .'" class="crb-no-hn" src="'.$assets_url.'ajax-loader-ip.gif" />'."\n";
 
-			//$list[]='<td>'.$ip.'</td><td>'.date($df.' '.$tf, $gmt_offset + $row->stamp).'</td><td><span class="actv'.$row->activity.'">'.$labels[$row->activity].'</td><td>'.$name.'</td><td>'.$username.'</td>';
-			$list[]='<td>'.$ip.'</td><td>'.$hostname.'</td><td>'.cerber_date($row->stamp).'</td><td><span class="actv'.$row->activity.'">'.$labels[$row->activity].'</td><td>'.$name.'</td><td>'.$username.'</td>';
+			$tip='';
+			$tag = cerber_acl_check($row->ip);
+			if ($tag == 'W') $tip = __('White IP Access List','cerber');
+			elseif ($tag == 'B') $tip = __('Black IP Access List','cerber');
+			if (cerber_block_check($row->ip)) {
+				$block='ip-blocked';
+				$tip .= ' '.__('Locked out','cerber');
+			}
+			else $block='';
+
+			$list[]='<td><div class="act-icon ip-acl'.$tag.' '.$block.'" title="'.$tip.' now"></div>'.$ip.'</td><td>'.$hostname.'</td><td>'.cerber_date($row->stamp).'</td><td><span class="actv'.$row->activity.'">'.$labels[$row->activity].'</td><td>'.$name.'</td><td>'.$username.'</td>';
 		}
-		$titles = '<tr><th>'.__('IP','cerber').'</th><th>'.__('Hostname','cerber').'</th><th>'.__('Date','cerber').'</th><th>'.__('Activity','cerber').'</th><th>'.__('Local User','cerber').'</th><th>'.__('Username used','cerber').'</th></tr>';
-		$table='<table id="crb-activity" class="widefat crb-table"><thead>'.$titles.'</thead><tfoot>'.$titles.'</tfoot>'.implode('</tr><tr>',$list).'</tr></table>';
+		$titles = '<tr><th><div class="act-icon"></div>'.__('IP','cerber').'</th><th>'.__('Hostname','cerber').'</th><th>'.__('Date','cerber').'</th><th>'.__('Activity','cerber').'</th><th>'.__('Local User','cerber').'</th><th>'.__('Username used','cerber').'</th></tr>';
+		$table='<table id="crb-activity" class="widefat crb-table"><thead>'.$titles.'</thead><tfoot>'.$titles.'</tfoot><tbody><tr>'.implode('</tr><tr>',$list).'</tr></tbody></table>';
 
 		// Filter activity by ...
 		foreach ($labels as $tag => $label) {
 			if (in_array($tag,$falist)) $links[] = '<b>'.$label.'</b>';
 			else $links[] = '<a href="'.$base_url.'&filter_activity='.$tag.'">'.$label.'</a>';
 		}
-		$table = '<p class="cerber-margin">'.__('Show only','cerber').': '.implode(' | ',$links).'</p>'.$table;
-		echo $table;
+		$navigate = '<p>'.__('Show only','cerber').': '.implode(' | ',$links).'</p>';
+
+		echo '<div class="cerber-margin">'.$navigate.$ip_text.'</div>'.$table;
 		cerber_page_navi($total,$per_page);
 		$legend  = '<p>'.sprintf(__('Showing last %d records from %d','cerber'),count($rows),$total);
 		$legend  = '';
@@ -276,14 +322,6 @@ function cerber_admin_bar( $wp_admin_bar ) {
 	$wp_admin_bar->add_node( $args );
 }
 /*
-Moved to main file
-function cerber_get_opage($tag=''){
-	$opage = 'options-general.php?page=cerber-settings';
-	if ($tag) $opage .= '&tab='.$tag;
-	return $opage;
-}
-*/
-/*
 	Check if on the WP Cerber dashboard page
 */
 function cerber_is_my_page(){
@@ -295,219 +333,55 @@ function cerber_is_my_page(){
 }
 
 /*
-	WP Settings API
-*/
-add_action('admin_init', 'cerber_admin_init');
-function cerber_admin_init(){
-
-	$tab='main'; // 'cerber-main' settings
-	register_setting( 'cerberus-'.$tab, 'cerber-'.$tab );
-
-	add_settings_section('cerber', __('Limit login attempts','cerber'), 'cerberus_section_main', 'cerber-'.$tab);
-	add_settings_field('attempts',__('Attempts','cerber'),'cerberus_field_show','cerber-'.$tab,'cerber',array('group'=>$tab,'option'=>'attempts','type'=>'attempts'));
-	add_settings_field('lockout',__('Lockout duration','cerber'),'cerberus_field_show','cerber-'.$tab,'cerber',array('group'=>$tab,'option'=>'lockout','type'=>'text','label'=>__('minutes','cerber'),'size'=>3));
-	add_settings_field('aggressive',__('Aggressive lockout','cerber'),'cerberus_field_show','cerber-'.$tab,'cerber',array('group'=>$tab,'type'=>'aggressive'));
-	add_settings_field('notify',__('Notifications','cerber'),'cerberus_field_show','cerber-'.$tab,'cerber',array('group'=>$tab,'type'=>'notify','option'=>'notify'));
-	add_settings_field('proxy',__('Site connection','cerber'),'cerberus_field_show','cerber-'.$tab,'cerber',array('group'=>$tab,'option'=>'proxy','type'=>'checkbox','label'=>__('My site is behind a reverse proxy','cerber')));
-
-	add_settings_section('proactive', __('Proactive security rules','cerber'), 'cerberus_section_proactive', 'cerber-'.$tab);
-	add_settings_field('subnet',__('Block subnet','cerber'),'cerberus_field_show','cerber-'.$tab,'proactive',array('group'=>$tab,'option'=>'subnet','type'=>'checkbox','label'=>__('Always block entire subnet Class C of intruders IP','cerber')));
-	add_settings_field('nonusers',__('Non-existent users','cerber'),'cerberus_field_show','cerber-'.$tab,'proactive',array('group'=>$tab,'option'=>'nonusers','type'=>'checkbox','label'=>__('Immediately block IP when attempting to login with a non-existent username','cerber')));
-	add_settings_field('wplogin',__('Request wp-login.php','cerber'),'cerberus_field_show','cerber-'.$tab,'proactive',array('group'=>$tab,'option'=>'wplogin','type'=>'checkbox','label'=>__('Immediately block IP after any request to wp-login.php','cerber')));
-	add_settings_field('noredirect',__('Redirect dashboard requests','cerber'),'cerberus_field_show','cerber-'.$tab,'proactive',array('group'=>$tab,'option'=>'noredirect','type'=>'checkbox','label'=>__('Disable automatic redirecting to the login page when /wp-admin/ is requested by an unauthorized request','cerber')));
-
-	add_settings_section('custom', __('Custom login page','cerber'), 'cerberus_section_custom', 'cerber-'.$tab);
-	add_settings_field('loginpath',__('Custom login URL','cerber'),'cerberus_field_show','cerber-'.$tab,'custom',array('group'=>$tab,'option'=>'loginpath','type'=>'text','label'=>__('must not overlap with the existing pages or posts slug','cerber')));
-	add_settings_field('loginnowp',__('Disable wp-login.php','cerber'),'cerberus_field_show','cerber-'.$tab,'custom',array('group'=>$tab,'option'=>'loginnowp','type'=>'checkbox','label'=>__('Block direct access to wp-login.php and return HTTP 404 Not Found Error','cerber')));
-
-	add_settings_section('citadel', __('Citadel mode','cerber'), 'cerberus_section_citadel', 'cerber-'.$tab);
-	add_settings_field('citadel',__('Threshold','cerber'),'cerberus_field_show','cerber-'.$tab,'citadel',array('group'=>$tab,'type'=>'citadel'));
-	add_settings_field('ciduration',__('Duration','cerber'),'cerberus_field_show','cerber-'.$tab,'citadel',array('group'=>$tab,'option'=>'ciduration','type'=>'text','label'=>__('minutes','cerber'),'size'=>3));
-	add_settings_field('ciwhite',__('Whitelist','cerber'),'cerberus_field_show','cerber-'.$tab,'citadel',array('group'=>$tab,'option'=>'ciwhite','type'=>'checkbox','label'=>__('Allow whitelist in Citadel mode','cerber')));
-	add_settings_field('cinotify',__('Notifications','cerber'),'cerberus_field_show','cerber-'.$tab,'citadel',array('group'=>$tab,'option'=>'cinotify','type'=>'checkbox','label'=>__('Send notification to admin email','cerber').' (<a href="'.wp_nonce_url(add_query_arg(array('testnotify'=>'citadel')),'control','cerber_nonce').'">'.__('Click to send test','cerber').'</a>)'));
-
-	add_settings_section('activity', __('Activity','cerber'), 'cerberus_section_activity', 'cerber-'.$tab);
-	add_settings_field('keeplog',__('Keep records for','cerber'),'cerberus_field_show','cerber-'.$tab,'activity',array('group'=>$tab,'option'=>'keeplog','type'=>'text','label'=>__('days','cerber'),'size'=>3));
-	add_settings_field('usefile',__('Use file','cerber'),'cerberus_field_show','cerber-'.$tab,'activity',array('group'=>$tab,'option'=>'usefile','type'=>'checkbox','label'=>__('Write failed login attempts to the file','cerber')));
-}
-
+ *
+ * United options 2.0. Looks crazy? Because of Settings API! :-(
+ * @since 2.0
+ *
+ *
+ */
+//add_action('admin_init', 'cerber_united_update');
 /*
-	Generate HTML for every sections on settings page
-*/
-function cerberus_section_main($args){
-}
-function cerberus_section_proactive($args){
-	_e('Make your protection smarter!','cerber');
-}
-function cerberus_section_custom($args){
-	if (!get_option('permalink_structure')) {
-		echo '<span style="color:#DF0000;">'.__('Please enable Permalinks to use this feature. Set Permalink Settings to something other than Default.','cerber').'</span>';
-	}
-	else {
-		_e('Be careful when enabling this options. If you forget the custom login URL you will not be able to login.','cerber');
-	}
-}
-function cerberus_section_citadel($args){
-	_e("In Citadel mode nobody is able to login. Active users' sessions will not be affected.",'cerber');
-}
-function cerberus_section_activity($args){
-}
-
-/*
-	Generate settings page with tabs
-*/
-function cerber_settings_page(){
-	$active_tab = isset( $_GET[ 'tab' ] ) ? $_GET[ 'tab' ] : 'main';
-	if (!in_array($active_tab,array('main','acl','activity','lockouts','messages','tools','help'))) $active_tab = 'main';
-	?>
-	<div class="wrap">
-	<h2><?php _e('Cerber Settings','cerber') ?></h2>
-  <h2 class="nav-tab-wrapper">
-  	<?php
-  	echo '<a href="'.admin_url(cerber_get_opage().'&tab=main"').'" class="nav-tab '. ($active_tab == 'main' ? 'nav-tab-active' : '') .'">'. __('Main Settings','cerber') .'</a>';
-  	echo '<a href="'.admin_url(cerber_get_opage().'&tab=acl"').'" class="nav-tab '. ($active_tab == 'acl' ? 'nav-tab-active' : '') .'">'. __('Access Lists','cerber').'</a>';
-  	echo '<a href="'.admin_url(cerber_get_opage().'&tab=activity"').'" class="nav-tab '. ($active_tab == 'activity' ? 'nav-tab-active' : '') .'">'. __('Activity','cerber').'</a>';
-  	echo '<a href="'.admin_url(cerber_get_opage().'&tab=lockouts"').'" class="nav-tab '. ($active_tab == 'lockouts' ? 'nav-tab-active' : '') .'">'. __('Lockouts','cerber').'</a>';
-	//echo '<a href="'.admin_url(cerber_get_opage().'&tab=messages"').'" class="nav-tab '. ($active_tab == 'messages' ? 'nav-tab-active' : '') .'">'. __('Messages','cerber').'</a>';
-		echo '<a href="'.admin_url(cerber_get_opage().'&tab=tools"').'" class="nav-tab '. ($active_tab == 'tools' ? 'nav-tab-active' : '') .'">'. __('Tools','cerber').'</a>';
-  	echo '<a href="'.admin_url(cerber_get_opage().'&tab=help"').'" class="nav-tab '. ($active_tab == 'help' ? 'nav-tab-active' : '') .'">'. __('Help','cerber').'</a>';
-  	?>
-  </h2>
-  <?php
-
-  cerber_show_aside($active_tab);
-
-	echo '<div class="crb-main">';
-  if ($active_tab == 'acl') cerber_acl_form();
-  elseif ($active_tab == 'activity') cerber_show_activity();
-  elseif ($active_tab == 'lockouts') cerber_show_lockouts();
-  elseif ($active_tab == 'tools') cerber_show_tools();
-  elseif ($active_tab == 'help') cerber_show_help();
-  else cerber_show_settings();
-	echo '</div>';
-
-	echo '</div>';
-}
-/*
-	Main settings tab
-*/
-function cerber_show_settings(){
-  	if (is_multisite()) $action =  ''; // Settings API doesn't work in multisite. Post data is handled in the cerber_ms_update()
-  	else $action ='options.php';
-  	// Display form with settings fields via Settings API
-		echo '<form method="post" action="'.$action.'">';
-		settings_fields( 'cerberus-main' ); // option group name, the same as used in register_setting().
-		do_settings_sections( 'cerber-main' ); // the same as used in add_settings_section()	$page
-		submit_button();
-		echo '</form>';
-}
-/*
-	Generate HTML for fields on settings page.
-*/
-function cerberus_field_show($args){
-	$settings = array_map('esc_html',cerber_get_options()); // ???
-	$value = null;
-	if (isset($args['option']) && isset($settings[$args['option']])) $value = $settings[$args['option']];
-	$pre='';
-	if (isset($args['option']) && ($args['option'] == 'loginnowp' || $args['option'] == 'loginpath') && !get_option('permalink_structure')) $disabled=' disabled="disabled" '; else $disabled='';
-	if (isset($args['option']) && $args['option'] == 'loginpath') {
-		$pre = rtrim(get_home_url(),'/').'/';
-		$value =	urldecode($value);
-	}
-	switch ($args['type']) {
-		case 'attempts':
-			$html=sprintf(__('%s allowed retries in %s minutes','cerber'),
-			'<input type="text" id="attempts" name="cerber-'.$args['group'].'[attempts]" value="'.$settings['attempts'].'" size="3" maxlength="3" />',
-			'<input type="text" id="period" name="cerber-'.$args['group'].'[period]" value="'.$settings['period'].'" size="3" maxlength="3" />');
-		break;
-		case 'aggressive':
-			$html=sprintf(__('Increase lockout duration to %s hours after %s lockouts in the last %s hours','cerber'),
-			'<input type="text" id="agperiod" name="cerber-'.$args['group'].'[agperiod]" value="'.$settings['agperiod'].'" size="3" maxlength="3" />',
-			'<input type="text" id="aglocks" name="cerber-'.$args['group'].'[aglocks]" value="'.$settings['aglocks'].'" size="3" maxlength="3" />',
-			'<input type="text" id="aglast" name="cerber-'.$args['group'].'[aglast]" value="'.$settings['aglast'].'" size="3" maxlength="3" />');
-		break;
-		case 'notify':
-			$html= '<input type="checkbox" id="'.$args['option'].'" name="cerber-'.$args['group'].'['.$args['option'].']" value="1" '.checked(1,$value,false).$disabled.' /> '
-			 .__('Notify admin if the number of active lockouts above','cerber').
-			' <input type="text" id="above" name="cerber-'.$args['group'].'[above]" value="'.$settings['above'].'" size="3" maxlength="3" />'.
-			' (<a href="'.wp_nonce_url(add_query_arg(array('testnotify'=>'lockout')),'control','cerber_nonce').'">'.__('Click to send test','cerber').'</a>)';
-		break;
-		case 'citadel':
-			$html=sprintf(__('Enable after %s failed login attempts in last %s minutes','cerber'),
-			'<input type="text" id="cilimit" name="cerber-'.$args['group'].'[cilimit]" value="'.$settings['cilimit'].'" size="3" maxlength="3" />',
-			'<input type="text" id="ciperiod" name="cerber-'.$args['group'].'[ciperiod]" value="'.$settings['ciperiod'].'" size="3" maxlength="3" />');
-		break;
-		case 'checkbox':
-			$html='<input type="checkbox" id="'.$args['option'].'" name="cerber-'.$args['group'].'['.$args['option'].']" value="1" '.checked(1,$value,false).$disabled.' />';
-			$html.= ' <label for="'.$args['option'].'">'.$args['label'].'</label>';
-		break;
-		default:
-			if (isset($args['size'])) $size=' size="'.$args['size'].'" maxlength="'.$args['size'].'" '; else $size='';
-			$html=$pre.'<input type="text" id="'.$args['option'].'" name="cerber-'.$args['group'].'['.$args['option'].']" value="'.$value.'"'.$disabled.$size.'/>';
-  		$html.= ' <label for="'.$args['option'].'">'.$args['label'].'</label>';
-		break;
-	}
-  echo $html;
-}
-/*
-	Sanitizing users input on settings page in dashboard
-*/
-add_filter( 'pre_update_option_cerber-main', 'cerber_sanitize_options', 10, 2 );
-function cerber_sanitize_options($new,$old){
-
-	$new['attempts']=absint($new['attempts']);
-	$new['period']=absint($new['period']);
-	$new['lockout']=absint($new['lockout']);
-
-	$new['agperiod']=absint($new['agperiod']);
-	$new['aglocks']=absint($new['aglocks']);
-	$new['aglast']=absint($new['aglast']);
-
-	if (get_option('permalink_structure')) {
-		$new['loginpath']=urlencode(str_replace('/','',$new['loginpath']));
-		if ($new['loginpath'] && $new['loginpath']!=$old['loginpath']) {
-			$href=get_home_url().'/'.$new['loginpath'].'/';
-			$url=urldecode($href);
-			$msg = __('Attention! You have changed the login URL! The new login URL is','cerber');
-			update_site_option('cerber_admin_notice',$msg.': <a href="'.$href.'">'.$url.'</a>');
-			cerber_send_notify('newlurl',$msg.': '.$url);
-		}
-	}
-	else {
-		$new['loginpath']='';
-		$new['loginnowp']=0;
-	}
-
-	$new['ciduration']=absint($new['ciduration']);
-	$new['cilimit']=absint($new['cilimit']);
-	$new['cilimit']= $new['cilimit'] == 0 ? '' : $new['cilimit'];
-	$new['ciperiod']=absint($new['ciperiod']);
-	$new['ciperiod']= $new['ciperiod'] == 0 ? '' : $new['ciperiod'];
-	if (!$new['cilimit']) $new['ciperiod']='';
-	if (!$new['ciperiod']) $new['cilimit']='';
-
-	if (absint($new['keeplog']) == 0) $new['keeplog']='';
-	return $new;
-}
-/*
-	Process POST Form for settings screens in multisite mode. Because of Settigns API doesn't work in multisite mode!
-*/
-if (is_multisite())  add_action('admin_init', 'cerber_ms_update'); // allowed only for network
-function cerber_ms_update() {
+function cerber_united_update() {
+	if ($_SERVER['REQUEST_METHOD']!='POST' || !isset($_POST['action']) || $_POST['action'] != 'update') return;
+	if (false === strpos($_POST['option_page'],'cerberus-')) return;
 	if (!current_user_can('manage_options')) return;
-	if ($_SERVER['REQUEST_METHOD']!='POST' || $_POST['option_page'] != 'cerberus-main' || $_POST['action'] != 'update') return;
-	$old = (array)get_site_option(CERBER_OPT);
-	$new = $_POST[CERBER_OPT];
-	$new = cerber_sanitize_options($new,$old);
-	update_site_option(CERBER_OPT,$new);
+
+	// preparing some data...
+	//$options=array('cerber-main','cerber-hardening'); // list of tabs (sections/groups of Settings API used with register_setting())
+	$options=array(CERBER_OPT,CERBER_OPT_H); // list of tabs (sections/groups of Settings API used with register_setting())
+	$opt_name = 'cerber-'.substr($_POST['option_page'],9); // 8 = length of 'cerberus-'
+	unset($options[array_search($opt_name,$options)]);
+	$default = cerber_get_defaults();
+	$version = $default['version'];
+	$default = array_map(function(){ return false; },$default);
+	$default['version'] = $version; // preserve version
+
+	// preparing is finished, we are ready to go
+    $united = array_merge($default,$_POST[$opt_name]);
+
+    foreach ($options as $opt) {
+        $o = get_site_option($opt);
+        if (!is_array($o)) continue;
+        $united = array_merge($united,$o); // add old values from other sections/tabs to preserve it
+    }
+    if (is_multisite()) { // Settings API doesn't work here!
+        $old = (array)get_site_option(CERBER_OPTIONS);
+        $united = cerber_sanitize_options($united,$old);
+        update_site_option($opt_name,$_POST[$opt_name]);
+    }
+    update_site_option(CERBER_OPTIONS,$united);
 }
+*/
 /*
 	Add custom columns to the Users screen
 */
 add_filter('manage_users_columns' , 'cerber_u_columns');
 function cerber_u_columns($columns) {
 	return array_merge( $columns,
-          	array('cbcc' => __('Comments','cerber'), 'cbla' => __('Last login','cerber') , 'cbfl' => __('Failed attempts in last 24 hours','cerber'), 'cbdr' => __('Date of registration','cerber')) );
+          	array('cbcc' => __('Comments','cerber'),
+          	'cbla' => __('Last login','cerber') ,
+          	'cbfl' => __('Failed attempts in last 24 hours','cerber'),
+          	'cbdr' => __('Date of registration','cerber')) );
 }
 add_filter( 'manage_users_sortable_columns','cerber_u_sortable');
 function cerber_u_sortable($sortable_columns) {
@@ -586,7 +460,8 @@ function cerber_export(){
 	if (!current_user_can('manage_options')) wp_die('Error!');
 	$p = cerber_plugin_data();
 	$data = array('cerber_version' => $p['Version'],'home'=> get_home_url(),'date'=>date('d M Y H:i:s'));
-	if ($_GET['exportset']) $data ['options'] = (array)get_site_option(CERBER_OPT);
+	//if ($_GET['exportset']) $data ['options'] = (array)get_site_option(CERBER_OPTIONS);
+	if ($_GET['exportset']) $data ['options'] = cerber_get_options(); // @since 2.0
 	if ($_GET['exportacl'])	$data ['acl'] = cerber_acl_all('ip,tag,comments');
 	$file = json_encode($data);
 	$file .= '==/'.strlen($file).'/'.crc32($file).'/EOF';
@@ -598,7 +473,7 @@ function cerber_export(){
 	exit;
 }
 /*
-	Load and Parse file and then Import settings
+	Load and Parse file and then import settings
 */
 add_action('admin_init','cerber_import');
 function cerber_import(){
@@ -617,8 +492,8 @@ function cerber_import(){
 		if ($sys[3] == 'EOF' && crc32($data) == $sys[2] && $data = json_decode($data, true)) {
 
 			if ($_POST['importset'] && $data['options'] && is_array($data['options']) && !empty($data['options'])) {
-				$data['options']['loginpath'] = urldecode($data['options']['loginpath']); // need to work filter cerber_sanitize_options()
-				update_site_option(CERBER_OPT,$data['options']);
+				$data['options']['loginpath'] = urldecode($data['options']['loginpath']); // needed to work filter cerber_sanitize_options()
+				cerber_save_options($data['options']); // @since 2.0
 			}
 
 			if ($_POST['importacl'] && $data['acl'] && is_array($data['acl']) && !empty($data['acl'])) {
@@ -691,9 +566,9 @@ function cerber_quick_w(){
 
 	echo '<table id="quick_info"><tr><td>'.__('Lockouts at the moment','cerber').'</td><td>'.$lockouts.'</td></tr>';
 	echo '<tr><td>'.__('Last lockout','cerber').'</td><td>'.$last.'</td></tr>';
-	echo '<tr><td style="padding-top:8px;">'.__('White IP Access List','cerber').'</td><td><b>'.$w_count.' '._n('entry','entries',$w_count,'cerber').'</b></td></tr>';
+	echo '<tr><td style="padding-top:15px;">'.__('White IP Access List','cerber').'</td><td style="padding-top:15px;"><b>'.$w_count.' '._n('entry','entries',$w_count,'cerber').'</b></td></tr>';
 	echo '<tr><td>'.__('Black IP Access List','cerber').'</td><td><b>'.$b_count.' '._n('entry','entries',$b_count,'cerber').'</b></td></tr>';
-	echo '<tr><td style="padding-top:8px;">'.__('Citadel mode','cerber').'</td><td><b>'.$citadel.'</b></td></tr>';
+	echo '<tr><td style="padding-top:15px;">'.__('Citadel mode','cerber').'</td><td style="padding-top:15px;"><b>'.$citadel.'</b></td></tr>';
 	echo '</table></div>';
 
 	echo '<div class="wilinks"><a href="'.$set.'">' . __('Settings','cerber').'</a> | <a href="'.$acl.'">' . __('Access Lists','cerber').'</a> | <a href="'.$act.'">' . __('Activity','cerber').'</a> | <a href="'.$loc.'">' . __('Lockouts','cerber').'</a></div>';
@@ -765,7 +640,7 @@ function cerber_show_help(){
 	</form>
 	-->
 	</div>
-<?php
+	<?php
 }
 
 
@@ -773,9 +648,10 @@ function cerber_show_help(){
 	Admin aside bar
 */
 function cerber_show_aside($page){
+
 	$aside = array();
-	if (!in_array($page,array('main','acl','messages','tools','help'))) return;
-	if ($page == 'main') {
+	if (!in_array($page,array('main','acl','messages','tools','help','hardening'))) return;
+	if (in_array($page,array('main','hardening'))) {
 		$aside[]='<div class="crb-box">
 			<h3>'.__('Confused about some settings?','cerber').'</h3>'
 			.__('You can easily load default recommended settings using button below','cerber').'
@@ -791,7 +667,7 @@ function cerber_show_aside($page){
 			<p><i>* '.__("doesn't affect Custom login URL and Access Lists",'cerber').'</i></p>
 		</div>';
 	}
-	if (in_array($page,array('main','acl','messages','tools','help'))) {
+	if (in_array($page,array('main','acl','messages','tools','help','hardening'))) {
 		$aside[]='<div class="crb-box">
 			<h3><span class="dashicons-before dashicons-lightbulb"></span> '.__('Read our blog','cerber').'</h3>
 			<p><a href="http://wpcerber.com/how-to-protect-wordpress-with-fail2ban/" target="_blank">How to protect WordPress with Fail2Ban</a>
@@ -851,10 +727,10 @@ function cerber_update_check(){
     	$new = $updates->response[$key]->new_version;
     	if( 1 === version_compare( $new, $old ) ){
         // current version is lower than latest
-        $ret = __('New version is available','cerber');
+        $ret = __('New version is available','cerber').' <span class="dashicons dashicons-arrow-right"></span>';
     		if (is_multisite()) $href = network_admin_url('plugins.php?plugin_status=upgrade');
     		else $href = admin_url('plugins.php?plugin_status=upgrade');
-    		$msg = '<b>'.$ret.':</b> <a href="'.$href.'">' . sprintf(__('Update to version %s of WP Cerber','cerber'),$new).'</a>';
+    		$msg = '<b>'.$ret.'</b> <a href="'.$href.'">' . sprintf(__('Update to version %s of WP Cerber','cerber'),$new).'</a>';
     		update_site_option('cerber_admin_message',$msg);
     		$ret = '<a href="'.$href.'">'.$ret.'</a>';
     	}
@@ -908,7 +784,7 @@ function cerber_action_links($actions, $plugin_file, $plugin_data, $context){
 */
 add_action('admin_head','cerber_admin_head');
 function cerber_admin_head(){
-	$assets_url = plugin_dir_url(CERBER_FILE).'assets/';
+	$assets_url = plugin_dir_url(CERBER_FILE).'assets';
 	?>
 	<style type="text/css" media="all">
 	/* Common */
@@ -916,7 +792,7 @@ function cerber_admin_head(){
 		width: auto;
 		overflow: hidden;
 	}
-	
+
 	.cerber-margin {
 		margin-left: 10px;
 	}
@@ -959,8 +835,30 @@ function cerber_admin_head(){
 	/* Tables */
 	.crb-table tr:nth-child(even) {background: #f9f9f9}
 	.crb-table tr:nth-child(odd) {background: #FFF}
+	.crb-table td {
+		vertical-align: middle;
+	}
 
 	/* Activity */
+
+	.act-icon {
+		display: inline-block;
+		vertical-align: middle;
+		width: 1em;
+		height: 1em;
+		margin-right: 1em;
+		background-color: inherit;
+	}
+	.ip-aclB {
+		background-color: #000;
+	}
+	.ip-aclW {
+		background-color: #83CE77;
+	}
+	.ip-blocked {
+		background-color: #FF5733;
+	}
+
 	.green_label, .actv5 {
 		display:inline-block;
 		padding:3px 5px 3px 5px;
@@ -1019,6 +917,22 @@ function cerber_admin_head(){
 		text-align:center;
 	}
 
+	/* Preserve line-height for tabs */
+	.cerber-tabs sup,
+	.cerber-tabs sub {
+		height: 0;
+		line-height: 1;
+		vertical-align: baseline;
+		_vertical-align: bottom;
+		position: relative;
+	}
+	.cerber-tabs sup {
+		bottom: 1ex;
+	}
+	.cerber-tabs sub {
+		top: .5ex;
+	}
+
 	/* Users */
 	#cbcc, .cbcc, #cbfl, .cbfl {
 		text-align:center;
@@ -1027,7 +941,7 @@ function cerber_admin_head(){
 	/* Widgets */
 	#cerber_quick .inside {
 		padding:0;
- 		background-image: url("<?php echo $assets_url; ?>bgwidget.png");
+ 		background-image: url("<?php echo $assets_url; ?>/bgwidget.png");
 		background-repeat: no-repeat;
 		background-position: right top;
 	}
@@ -1081,9 +995,11 @@ function cerber_admin_head(){
 						$(this).replaceWith(hostnames[$(this).data('ip-id')]);
 					});
 				}
-				var ip_list = $(".crb-table .crb-no-hn").map(function () {
-        	return $(this).data('ip-id');
-	    	});
+				var ip_list = $(".crb-table .crb-no-hn").map(
+					function () {
+        	            return $(this).data('ip-id');
+	    	        }
+	    	    );
 				if (ip_list.length != 0) $.post(ajaxurl,{ action:'cerber_ajax', get_hostnames:ip_list.toArray() }, setHostNames);
 
 			}

@@ -1,10 +1,10 @@
 === Cerber Limit Login Attempts ===
 Contributors: gioni
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SR8RJXFU35EW8
-Tags: security, access control, authentication, limit, login, access, admin, users, protect, protection, brute force, bruteforce, activity, log, logging, block, hide wp-admin, wp-login, wp-admin, fail2ban, monitoring, rename wp login, whitelist, blacklist, wordpress security
+Tags: security, access control, authentication, limit, login, access, admin, users, protect, protection, brute force, bruteforce, activity, log, logging, block, hide wp-admin, wp-login, wp-admin, fail2ban, monitoring, rename wp login, whitelist, blacklist, wordpress security, xmlrpc, user enumeration,
 Requires at least: 3.3
-Tested up to: 4.4
-Stable tag: 1.8.1
+Tested up to: 4.4.2
+Stable tag: 2.0.1.6
 License: GPLv2
 
 Protects site against brute force attacks. Restrict login by IP access lists. Limit login attempts. Comprehensive control of user activity.
@@ -24,6 +24,10 @@ Limit the number of login attempts through the login form, XML-RPC requests or u
 * Make **custom URL for logging in** (rename wp-login.php).
 * Immediately block IP or subnet when attempting to log in with **non-existent username**.
 * Disable automatic redirecting to login page.
+* Disable XML-RPC (block access to the XML-RPC server including Pingbacks and Trackbacks)
+* Disable feeds (block access to the RSS, Atom and RDF feeds)
+* Restrict access to the XML-RPC or feeds by **White Access list** with IP or subnet.
+* **Stop user enumeration** (block access to the pages like /?author=n)
 * Proactively **block IP subnet class C** for intruder's IP.
 * Citadel mode for **massive brute force attack**.
 * Write failed attempts to the syslog or custom log file for using with **fail2ban**.
@@ -54,6 +58,7 @@ Massive botnet brute force attack? That's no longer a problem. **Citadel mode** 
 * Deutsche, thanks to mario
 * Dutch, thanks to [Bernardo](https://twitter.com/bernardohulsman)
 * Français, thanks to hardesfred
+* Czech, thanks to [Hrohh](https://profiles.wordpress.org/hrohh/)
 * Український
 * Русский
 
@@ -61,7 +66,7 @@ I am passionate about building a great solutions so, please, [write your review 
 
 Have a question? [Get help here](http://wordpress.org/support/plugin/wp-cerber)!
 
-Do you have a suggestion? [Help us improve WP Cerber!](http://wpcerber.com/support/)
+Do you have a suggestion? [Help us improve WP Cerber!](http://wpcerber.com/new-feature-request/)
 
 There are semi-similar security plugins: Login LockDown, Login Security Solution,
 BruteProtect, Ajax Login & Register, Lockdown WP Admin,
@@ -90,6 +95,10 @@ Make your website instantly available in 90+ languages with Google Translate Wid
 = Is this plugin compatible with Multisite mode? =
 
 Yes. All settings apply to all sites in the network simultaneously. You have to activate the plugin in the Network Admin area on the Plugins page. Just click on the Network Activate link.
+
+= Can this plugin works together with Limit Login Attempts? =
+
+No. WP Cerber is a drop in replacement for it.
 
 = Is this plugin compatible with WooCommerce? =
 
@@ -125,7 +134,7 @@ Yes! WP Cerber is not on the list of disallowed plugins. There are no limitation
 
 = Can I rename wp-admin folder? =
 
-No. It's not possible and not recommended for compatibily reason.
+No. It's not possible and not recommended for compatibility reason.
 
 = Can this plugin works together with Limit Login Attempts? =
 
@@ -145,7 +154,6 @@ To get access to you dashboard you need to copy WP Cerber Reset folder to the pl
 4. Log in to the your site as usually. Now WP Cerber disabled completely.
 5. Reinstall WP Cerber again. You need to do it, because WP Cerber Reset can't acting as normal plugin.
 
-
 == Screenshots ==
 
 1. Main screen settings are: Limit login attempts, Custom login page, Proactive security rules, Citadel mode, Write to syslog option.
@@ -157,6 +165,23 @@ To get access to you dashboard you need to copy WP Cerber Reset folder to the pl
 7. Beautiful widget for the dashboard to keep an eye on things. Get quick analytic with trends over 24 hours.
 
 == Changelog ==
+
+= 2.0.1.6 =
+* Important Note: This release brings a lot of changes to the code - let me know if something goes wrong: [http://wpcerber.com/support/](http://wpcerber.com/support/). You can roll back to the last stable version here: http://wpcerber.com/download/
+* New: Added Reason column on the Lockouts screen which will display cause of blocking particular IP.
+* New: Added Hardening WP with options: disable XML-RPC completely, disable user enumeration, disable feeds (RSS, Atom, RSD).
+* New: Added Custom email address for notifications.
+* New: Added Dutch and Czech translations.
+* New: Added Quick info about IP on Activity tab.
+* Update: Removed option 'Allow whitelist in Citadel mode'. Now this whitelist is enabled by default all the time.
+* Update: For notifications on the multisite istallation the admin email address from the Network Settings wil be used.
+* Fixed Bug: Disable wp-login.php doesn't work for subfolder installation.
+* Fixed Bug: Custom login URL doesn't work without trailing slash.
+* Fixed Bug: Any request to wp-signup.php reveal hidden Custom login URL.
+
+= 1.9 =
+* Code refactoring and cleaning up.
+* Unlocalized strings was localized.
 
 = 1.8.1 =
 * Fixed minor bug: no content (empty cells) in the custom colums added by other plugins on the Users screen in the Dashboard.
@@ -185,7 +210,7 @@ To get access to you dashboard you need to copy WP Cerber Reset folder to the pl
 * Limited notifications in the dashboard.
 
 = 1.4 =
-* Added support Multisite mode in limit login attempts.
+* Added support Multisite mode for limit login attempts.
 * Added Number of comments column on the Users screen in dashboard.
 * Updated notification settings.
 * Updated languages files.
@@ -224,6 +249,6 @@ Protège site contre les attaques par force brute. Un contrôle complet de l'act
 
 **What does "Cerber" mean?**
 
-This is a contraction from Cerberus. In Greek and Roman mythology, Cerberus is a multi-headed dog with a serpent's tail, a mane of snakes, and a lion's claws. Nobody can bypass this angry dog. Now you can order WP Cerber to guard the entrance to your site too.
+Cerber is derived from the name Cerberus. In Greek and Roman mythology, Cerberus is a multi-headed dog with a serpent's tail, a mane of snakes, and a lion's claws. Nobody can bypass this angry dog. Now you can order WP Cerber to guard the entrance to your site too.
 
 

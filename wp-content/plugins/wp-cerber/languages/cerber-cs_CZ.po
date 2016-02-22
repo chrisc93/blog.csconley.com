@@ -1,0 +1,708 @@
+# Loco Gettext template
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Cerber\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-01-08 19:31+0100\n"
+"PO-Revision-Date: 2016-01-08 20:54+0100\n"
+"Last-Translator: nothing <nothing@nothing.com>\n"
+"Language-Team: \n"
+"Language: cs_CZ\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Revision-Date: Mon Nov 02 2015 18:46:15 GMT+0300\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-Basepath: ../../plugins/wp-cerber\n"
+"X-Poedit-KeywordsList: _:1;gettext:1;dgettext:2;ngettext:1,2;dngettext:2,3;"
+"__:1;_e:1;_c:1;_n:1,2;_n_noop:1,2;_nc:1,2;__ngettext:1,2;__ngettext_noop:1,2;"
+"_x:1,2c;_ex:1,2c;_nx:1,2,4c;_nx_noop:1,2,3c;_n_js:1,2;_nx_js:1,2,3c;"
+"esc_attr__:1;esc_html__:1;esc_attr_e:1;esc_html_e:1;esc_attr_x:1,2c;"
+"esc_html_x:1,2c;comments_number_link:2,3;t:1;st:1;trans:1;transChoice:1,2\n"
+"X-Generator: Poedit 1.8.6\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: dashboard.php:28 dashboard.php:61
+msgid "Remove"
+msgstr "Odstranit"
+
+#: dashboard.php:31 dashboard.php:220
+msgid "IP"
+msgstr ""
+
+#: dashboard.php:31 dashboard.php:220
+msgid "Hostname"
+msgstr "Server (hostname)"
+
+#: dashboard.php:31
+msgid "Expires"
+msgstr "Expirace"
+
+#: dashboard.php:35 dashboard.php:231
+#, php-format
+msgid "Showing last %d records from %d"
+msgstr "Zobrazení posledních %d záznamů z %d"
+
+#: dashboard.php:38
+msgid "Hint"
+msgstr "Zásah"
+
+#: dashboard.php:38
+msgid "To view activity, click on the IP"
+msgstr "Chcete-li zobrazit aktivitu, klikněte na IP adresu"
+
+#: dashboard.php:40
+msgid "No lockouts at the moment. The sky is clear."
+msgstr "V tuto chvíli žádné blokování. Obloha je jasná."
+
+#: dashboard.php:49 dashboard.php:694
+msgid "White IP Access List"
+msgstr "Seznam povolených IP adres"
+
+#: dashboard.php:49
+msgid "These IPs will never be locked out"
+msgstr "Tyto IP adresy nebudou blokovány"
+
+#: dashboard.php:50 dashboard.php:695
+msgid "Black IP Access List"
+msgstr "Seznam blokovaných IP adres"
+
+#: dashboard.php:50
+msgid "Nobody can log in from these IPs"
+msgstr "Tyto IP adresy budou blokovány"
+
+#: dashboard.php:51
+msgid "Your IP"
+msgstr "Vaše IP"
+
+#: dashboard.php:52
+msgid ""
+"Note: You can add a subnet Class C with the format like this: xxx.xxx.xxx.*"
+msgstr "Poznámka: Je možné přidat podsíť třídy C ve formátu xxx.xxx.xxx.*"
+
+#: dashboard.php:61
+msgid "Check for activity"
+msgstr "Zkontrolovat aktivitu"
+
+#: dashboard.php:64
+msgid "List is empty"
+msgstr "Seznam je prázdný"
+
+#: dashboard.php:77
+#, php-format
+msgid "Address %s was added to White IP Access List"
+msgstr "Adresa %s byla přidána do seznamu povolených IP adres"
+
+#: dashboard.php:82
+#, php-format
+msgid "Address %s was added to Black IP Access List"
+msgstr "Adresa %s byla přidána do seznamu blokovaných IP adres"
+
+#: dashboard.php:84
+msgid "You can't add your IP address"
+msgstr "Nemůžete přidat vaši IP adresu"
+
+#: dashboard.php:120
+msgid "unknown"
+msgstr "neznámé"
+
+#: dashboard.php:139
+msgid "Message has been sent to "
+msgstr "Zpráva byla odeslána na "
+
+#: dashboard.php:145
+#, php-format
+msgid "Lockout for %s was removed"
+msgstr "Blokace %s byla odstraněna"
+
+#: dashboard.php:152
+msgid "Settings saved."
+msgstr "Nastavení bylo uloženo."
+
+#: dashboard.php:220
+msgid "Date"
+msgstr "Datum"
+
+#: dashboard.php:220 dashboard.php:329 dashboard.php:369 dashboard.php:699
+msgid "Activity"
+msgstr "Aktivity"
+
+#: dashboard.php:220
+msgid "Local User"
+msgstr "Místní uživatel"
+
+#: dashboard.php:220
+msgid "Username used"
+msgstr "Uživatelské jméno je již použito"
+
+#: dashboard.php:228
+msgid "Show only"
+msgstr "Zobrazit pouze"
+
+#: dashboard.php:234
+msgid "No activity has been logged."
+msgstr "Zatím neproběhla žádná aktivita."
+
+#: dashboard.php:244
+msgid "Logged in"
+msgstr "Přihlášen"
+
+#: dashboard.php:245
+msgid "Logged out"
+msgstr "Odhlášen"
+
+#: dashboard.php:246
+msgid "Login failed"
+msgstr "Přihlášení selhalo"
+
+#: dashboard.php:247
+msgid "IP blocked"
+msgstr "IP blokována"
+
+#: dashboard.php:248
+msgid "Subnet blocked"
+msgstr "Podsít zablokována"
+
+#: dashboard.php:249
+msgid "Citadel activated!"
+msgstr "Citadela je aktivní!"
+
+#: dashboard.php:250
+msgid "Locked out"
+msgstr "Blokován"
+
+#: dashboard.php:251
+msgid "IP blacklisted"
+msgstr "IP na černé listině"
+
+#: dashboard.php:252
+msgid "Password changed"
+msgstr "Heslo bylo změněno"
+
+#: dashboard.php:265
+msgid "WP Cerber Settings"
+msgstr "Bezpečnost přihlašování"
+
+#: dashboard.php:265
+msgid "WP Cerber"
+msgstr "Bezpečnost přihlašování"
+
+#: dashboard.php:306
+msgid "Limit login attempts"
+msgstr "Omezit neúspěšné pokusy"
+
+#: dashboard.php:307
+msgid "Attempts"
+msgstr "Pokusy"
+
+#: dashboard.php:308
+msgid "Lockout duration"
+msgstr "Doba blokování"
+
+#: dashboard.php:308 dashboard.php:325
+msgid "minutes"
+msgstr "minut(y)"
+
+#: dashboard.php:309
+msgid "Aggressive lockout"
+msgstr "Agresivní zablokování"
+
+#: dashboard.php:310 dashboard.php:327
+msgid "Notifications"
+msgstr "Notifikace"
+
+#: dashboard.php:311
+msgid "Site connection"
+msgstr "Připojení webu"
+
+#: dashboard.php:311
+msgid "My site is behind a reverse proxy"
+msgstr "Web je za reverzní proxy"
+
+#: dashboard.php:313
+msgid "Proactive security rules"
+msgstr "Proaktivní bezpečnostní pravidla"
+
+#: dashboard.php:314
+msgid "Block subnet"
+msgstr "Zablokovat podsíť"
+
+#: dashboard.php:314
+msgid "Always block entire subnet Class C of intruders IP"
+msgstr "Pokaždé blokovat útočníka v celé subsíti třídy C"
+
+#: dashboard.php:315
+msgid "Non-existent users"
+msgstr "Neexistující uživatelé"
+
+#: dashboard.php:315
+msgid ""
+"Immediately block IP when attempting to login with a non-existent username"
+msgstr ""
+"Při pokusu o přihlášení s neexistujícím uživatelským jménem okamžitě "
+"zablokovat IP adresu"
+
+#: dashboard.php:316
+msgid "Request wp-login.php"
+msgstr "Požadavek wp-login.php"
+
+#: dashboard.php:316
+msgid "Immediately block IP after any request to wp-login.php"
+msgstr "Ihned blokovat IP adresu po jakékoli žádosti na soubor wp-login.php"
+
+#: dashboard.php:317
+msgid "Redirect dashboard requests"
+msgstr "Přesměrování požadavku nástěnky"
+
+#: dashboard.php:317
+msgid ""
+"Disable automatic redirecting to the login page when /wp-admin/ is requested "
+"by an unauthorized request"
+msgstr ""
+"Zakázat automatické přesměrování na přihlašovací stránku, pokud je poslán "
+"neautorizovaný požadavek na /wp-admin/"
+
+#: dashboard.php:319
+msgid "Custom login page"
+msgstr "Vlastní přihlašovací stránka"
+
+#: dashboard.php:320
+msgid "Custom login URL"
+msgstr "Vlastní login URL"
+
+#: dashboard.php:320
+msgid "must not overlap with the existing pages or posts slug"
+msgstr ""
+"url se nesmí překrývat s existujícím obsahem ( stránka, příspěvek, ... )"
+
+#: dashboard.php:321
+msgid "Disable wp-login.php"
+msgstr "Zakázat wp-login.php"
+
+#: dashboard.php:321
+msgid "Block direct access to wp-login.php and return HTTP 404 Not Found Error"
+msgstr ""
+"Blokovat přímý přístup k wp-login.php a odeslat http kód 404 - stránka "
+"nebyla nalezena"
+
+#: dashboard.php:323 dashboard.php:696
+msgid "Citadel mode"
+msgstr "Režim Citadela"
+
+#: dashboard.php:324
+msgid "Threshold"
+msgstr "Práh"
+
+#: dashboard.php:325
+msgid "Duration"
+msgstr "Trvání"
+
+#: dashboard.php:326
+msgid "Whitelist"
+msgstr "Seznam povolených"
+
+#: dashboard.php:326
+msgid "Allow whitelist in Citadel mode"
+msgstr "Povolit seznam povolených v režimu citadely"
+
+#: dashboard.php:327
+msgid "Send notification to admin email"
+msgstr "Odeslat oznámení na email administrátora"
+
+#: dashboard.php:327 dashboard.php:433
+msgid "Click to send test"
+msgstr "Odeslat test"
+
+#: dashboard.php:330
+msgid "Keep records for"
+msgstr "Uchovat záznamy po"
+
+#: dashboard.php:330
+msgid "days"
+msgstr "dnů"
+
+#: dashboard.php:331
+msgid "Use file"
+msgstr "Použít soubor"
+
+#: dashboard.php:331
+msgid "Write failed login attempts to the file"
+msgstr "Zapsat neúspěšné pokusy do souboru"
+
+#: dashboard.php:340
+msgid "Make your protection smarter!"
+msgstr "Zapněte inteligentní ochranu webu!"
+
+#: dashboard.php:344
+msgid ""
+"Please enable Permalinks to use this feature. Set Permalink Settings to "
+"something other than Default."
+msgstr ""
+
+#: dashboard.php:347
+msgid ""
+"Be careful when enabling this options. If you forget the custom login URL "
+"you will not be able to login."
+msgstr ""
+"Buďte opatrní s touto volbou. Pokud zapomenete přihlašovací stránku, "
+"nebudete se moci přihlásit."
+
+#: dashboard.php:351
+msgid ""
+"In Citadel mode nobody is able to login. Active users' sessions will not be "
+"affected."
+msgstr ""
+"V režimu Citadely se nikdo nemůže přihlásit. Aktivní uživatelé však nebudou "
+"ovlivněni."
+
+#: dashboard.php:364
+msgid "Cerber Settings"
+msgstr "Nastavení bezpečnosti přihlašování"
+
+#: dashboard.php:367
+msgid "Main Settings"
+msgstr "Hlavní nastavení"
+
+#: dashboard.php:368 dashboard.php:566 dashboard.php:575 dashboard.php:631
+#: dashboard.php:699 dashboard.php:901
+msgid "Access Lists"
+msgstr "Seznam přístupů"
+
+#: dashboard.php:370 dashboard.php:699
+msgid "Lockouts"
+msgstr "Blokování"
+
+#: dashboard.php:372
+msgid "Tools"
+msgstr "Nástroje"
+
+#: dashboard.php:373
+msgid "Help"
+msgstr "Nápověda"
+
+#: dashboard.php:419
+#, php-format
+msgid "%s allowed retries in %s minutes"
+msgstr "%s povolené pokusy v %s minutách"
+
+#: dashboard.php:424
+#, php-format
+msgid ""
+"Increase lockout duration to %s hours after %s lockouts in the last %s hours"
+msgstr ""
+"Zvýšit dobu trvání blokace na %s hodin(y) po %s blokacích ve %s hodinách"
+
+#: dashboard.php:431
+msgid "Notify admin if the number of active lockouts above"
+msgstr "Upozornit administrátora, pokud blokace přesáhne počet"
+
+#: dashboard.php:436
+#, php-format
+msgid "Enable after %s failed login attempts in last %s minutes"
+msgstr "Zapnout po %s. neúspěšném přihlášení v %s minutách."
+
+#: dashboard.php:471
+msgid "Attention! You have changed the login URL! The new login URL is"
+msgstr "Pozor! Změnili jste adresu pro přihlašování! Nová adresa je"
+
+#: dashboard.php:510
+msgid "Comments"
+msgstr "Komentáře"
+
+#: dashboard.php:510
+msgid "Last login"
+msgstr "Poslední přihlášení"
+
+#: dashboard.php:510
+msgid "Failed attempts in last 24 hours"
+msgstr "Neúspěšné pokusy v posledních 24 hodinách"
+
+#: dashboard.php:510
+msgid "Date of registration"
+msgstr "Datum registrace"
+
+#: dashboard.php:538 dashboard.php:677
+msgid "Never"
+msgstr "Zatím neproběhla"
+
+#: dashboard.php:562
+msgid "Export settings to the file"
+msgstr "Export nastavení do souboru"
+
+#: dashboard.php:563
+msgid ""
+"When you click the button below you will get a configuration file, which you "
+"can upload on another site."
+msgstr ""
+"Pokud kliknete na tlačítko níže, obdržíte konfigurační soubor, který můžete "
+"nahrát na jiném webu."
+
+#: dashboard.php:564
+msgid "What do you want to export?"
+msgstr "Co chcete exportovat?"
+
+#: dashboard.php:565 dashboard.php:574 dashboard.php:699 dashboard.php:900
+msgid "Settings"
+msgstr "Nastavení"
+
+#: dashboard.php:567
+msgid "Download file"
+msgstr "Stáhnout soubor"
+
+#: dashboard.php:569
+msgid "Import settings from the file"
+msgstr "Importovat nastavení ze souboru"
+
+#: dashboard.php:570
+msgid ""
+"When you click the button below, file will be uploaded and all existing "
+"settings will be overridden."
+msgstr ""
+"Pokud kliknete na tlačítko níže, stávající nastavení bude nahrazeno vybraným "
+"souborem."
+
+#: dashboard.php:571
+msgid "Select file to import."
+msgstr "Vyberte prosím soubor importu."
+
+#: dashboard.php:571
+#, php-format
+msgid "Maximum upload file size: %s."
+msgstr "Maximální velikost nahrávaného souboru: %s."
+
+#: dashboard.php:574
+msgid "What do you want to import?"
+msgstr "Co chcete importovat?"
+
+#: dashboard.php:576
+msgid "Upload file"
+msgstr "Nahrát soubor"
+
+#: dashboard.php:610
+msgid "No file was uploaded or file is corrupted"
+msgstr "Žádný soubor nebyl nahrán nebo je soubor poškozen"
+
+#: dashboard.php:631
+msgid "Error while updating"
+msgstr "Během aktualizace se vyskytla chyba"
+
+#: dashboard.php:634
+msgid "Settings has imported successfully from"
+msgstr "Nastavení bylo úspěšně importováno z"
+
+#: dashboard.php:638
+msgid "Error while parsing file"
+msgstr "Během ukládání se vyskytla chyba"
+
+#: dashboard.php:649
+msgid "Cerber Quick View"
+msgstr "Rychlé zobrazení"
+
+#: dashboard.php:681
+msgid "active"
+msgstr "aktivní"
+
+#: dashboard.php:681
+msgid "deactivate"
+msgstr "deaktivovat"
+
+#: dashboard.php:683
+msgid "not active"
+msgstr "není aktivní"
+
+#: dashboard.php:684
+msgid "disabled"
+msgstr "vypnuto"
+
+#: dashboard.php:689
+msgid "failed attempts"
+msgstr "neúspěšných pokusů"
+
+#: dashboard.php:689 dashboard.php:690
+msgid "in 24 hours"
+msgstr "ve 24 hodinách"
+
+#: dashboard.php:689 dashboard.php:690
+msgid "view all"
+msgstr "zobrazit vše"
+
+#: dashboard.php:690
+msgid "lockouts"
+msgstr "blokování"
+
+#: dashboard.php:692
+msgid "Lockouts at the moment"
+msgstr "Blokováni v tento okamžik"
+
+#: dashboard.php:693
+msgid "Last lockout"
+msgstr "Poslední blokování"
+
+#: dashboard.php:694 dashboard.php:695 dashboard.php:883
+msgid "entry"
+msgid_plural "entries"
+msgstr[0] "položka"
+msgstr[1] "položky"
+msgstr[2] "položek"
+
+#: dashboard.php:780
+msgid "Confused about some settings?"
+msgstr "Jste zmatení ohledně některého nastavení?"
+
+#: dashboard.php:781
+msgid "You can easily load default recommended settings using button below"
+msgstr ""
+"Můžete snadno načíst výchozí doporučené nastavení pomocí níže uvedeného "
+"tlačítka"
+
+#: dashboard.php:783
+msgid "Load default settings"
+msgstr "Načíst výchozí nastavení"
+
+#: dashboard.php:785 dashboard.php:1069
+msgid "Are you sure?"
+msgstr "Jste tu?"
+
+#: dashboard.php:791
+msgid "doesn't affect Custom login URL and Access Lists"
+msgstr ""
+
+#: dashboard.php:796
+msgid "Read our blog"
+msgstr "Přečtěte si náš blog"
+
+#: dashboard.php:804
+msgid "Donate"
+msgstr "Darovat"
+
+#: dashboard.php:827
+msgid "Attention! Citadel mode is now active. Nobody is able to login."
+msgstr ""
+"Pozor! Režim Citadela  je nyní aktivní. Nikdo není schopen se přihlásit."
+
+#: dashboard.php:828
+msgid "Deactivate"
+msgstr "Deaktivovat"
+
+#: dashboard.php:829
+msgid "View Activity"
+msgstr "Zobrazit aktivity"
+
+#: dashboard.php:854
+msgid "New version is available"
+msgstr "Nová verze je k dispozici"
+
+#: dashboard.php:857
+#, php-format
+msgid "Update to version %s of WP Cerber"
+msgstr "Aktualizovat na nejnovější verzi bezpečného přihlašování %s"
+
+#: wp-cerber.php:162
+msgid "You are not allowed to log in. Ask your administrator for assistance."
+msgstr "Nejste oprávněni se přihlásit. Požádejte správce o pomoc."
+
+#: wp-cerber.php:166
+#, php-format
+msgid ""
+"You have reached the login attempts limit. Please try again in %d minutes."
+msgstr ""
+"Dosáhli jste limitu pokusů o přihlášení. Zkuste to prosím znovu za %d "
+"minut(y)."
+
+#: wp-cerber.php:179
+#, php-format
+msgid "You have only one attempt remaining."
+msgid_plural "You have %d attempts remaining."
+msgstr[0] "Máte jen jeden zbývající pokus."
+msgstr[1] "Máte jen %d zbývající pokusy."
+msgstr[2] "Máte jen %d zbývajících pokusů."
+
+#: wp-cerber.php:589 wp-cerber.php:603 wp-cerber.php:612
+msgid "WP Cerber notify"
+msgstr "Notifikace bezpečného přihlašování"
+
+#: wp-cerber.php:589
+msgid "Citadel mode is activated"
+msgstr "Režim Citadela je aktivní"
+
+#: wp-cerber.php:591
+#, php-format
+msgid "Citadel mode is activated after %d failed login attempts in %d minutes."
+msgstr ""
+"Režim Citadely je aktivován po %d neúspěšných pokusech o přihlášení v %d "
+"minutách."
+
+#: wp-cerber.php:592
+#, php-format
+msgid "Last failed attempt was at %s from IP %s with user login: %s."
+msgstr ""
+"Poslední pokus byl zaznamenán v %s z IP adresy %s s přihlašovacím jménem: %s."
+
+#: wp-cerber.php:593
+msgid "View activity in dashboard"
+msgstr "Zobrazit aktivitu na nástěnce"
+
+#: wp-cerber.php:594 wp-cerber.php:608
+msgid "Change notification settings"
+msgstr "Změnit nastavení upozornění"
+
+#: wp-cerber.php:603
+msgid "Number of lockouts is growing up"
+msgstr "Počet blokací se zvyšuje"
+
+#: wp-cerber.php:605
+msgid "Number of active lockouts"
+msgstr "Počet aktivních blokací"
+
+#: wp-cerber.php:606
+msgid "Last lockout was added"
+msgstr "Poslední blokace byla přidána"
+
+#: wp-cerber.php:607
+msgid "View lockouts in dashboard"
+msgstr "Zobrazit blokace na nástěnce"
+
+#: wp-cerber.php:612
+msgid "New Custom login URL"
+msgstr "URL nové adresy pro přihlášení"
+
+#: wp-cerber.php:617
+msgid "This message was sent by"
+msgstr "Tato zpráva byla odeslána pomocí"
+
+#: wp-cerber.php:753
+#, php-format
+msgid "The WP Cerber requires PHP %s or higher. You are running"
+msgstr "Bezpečné přihlašování vyžaduje alespoň PHP %s a vyšší. Vaše PHP je"
+
+#: wp-cerber.php:757
+#, php-format
+msgid "The WP Cerber requires WordPress %s or higher. You are running"
+msgstr ""
+"Bezpečné přihlašování vyžaduje alespoň Wordpress verze %s a vyšší. Váš "
+"Wordpress je"
+
+#: wp-cerber.php:807
+msgid "Can't activate WP Cerber due to a database error."
+msgstr "Nelze aktivovat bezpečné přihlašování kvůli chybě databáze."
+
+#: wp-cerber.php:816
+msgid "WP Cerber is now active and has started protecting your site."
+msgstr "Bezpečné přihlašování je nyní aktivní a chrání Váš web."
+
+#: wp-cerber.php:817
+msgid "Check settings here"
+msgstr "Zkontrolovat nastavení"
+
+#~ msgid "months"
+#~ msgstr "měsíce"
+
+#~ msgid "Messages"
+#~ msgstr "Zprávy"
+
+#~ msgid "Support"
+#~ msgstr "Podpora"
+
+#~ msgid "Today"
+#~ msgstr "Dnes"
