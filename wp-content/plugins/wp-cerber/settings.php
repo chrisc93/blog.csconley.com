@@ -31,6 +31,8 @@ define('CERBER_OPT_H','cerber-hardening'); // tab 2
 add_action('admin_init', 'cerber_settings_init');
 function cerber_settings_init(){
 
+	// Main Settings tab
+
 	$tab='main'; // 'cerber-main' settings
 	register_setting( 'cerberus-'.$tab, 'cerber-'.$tab );
 
@@ -44,8 +46,8 @@ function cerber_settings_init(){
 	add_settings_section('proactive', __('Proactive security rules','cerber'), 'cerberus_section_proactive', 'cerber-'.$tab);
 	add_settings_field('subnet',__('Block subnet','cerber'),'cerberus_field_show','cerber-'.$tab,'proactive',array('group'=>$tab,'option'=>'subnet','type'=>'checkbox','label'=>__('Always block entire subnet Class C of intruders IP','cerber')));
 	add_settings_field('nonusers',__('Non-existent users','cerber'),'cerberus_field_show','cerber-'.$tab,'proactive',array('group'=>$tab,'option'=>'nonusers','type'=>'checkbox','label'=>__('Immediately block IP when attempting to login with a non-existent username','cerber')));
-	add_settings_field('wplogin',__('Request wp-login.php','cerber'),'cerberus_field_show','cerber-'.$tab,'proactive',array('group'=>$tab,'option'=>'wplogin','type'=>'checkbox','label'=>__('Immediately block IP after any request to wp-login.php','cerber')));
 	add_settings_field('noredirect',__('Redirect dashboard requests','cerber'),'cerberus_field_show','cerber-'.$tab,'proactive',array('group'=>$tab,'option'=>'noredirect','type'=>'checkbox','label'=>__('Disable automatic redirecting to the login page when /wp-admin/ is requested by an unauthorized request','cerber')));
+	add_settings_field('wplogin',__('Request wp-login.php','cerber'),'cerberus_field_show','cerber-'.$tab,'proactive',array('group'=>$tab,'option'=>'wplogin','type'=>'checkbox','label'=>__('Immediately block IP after any request to wp-login.php','cerber')));
 
 	add_settings_section('custom', __('Custom login page','cerber'), 'cerberus_section_custom', 'cerber-'.$tab);
 	add_settings_field('loginpath',__('Custom login URL','cerber'),'cerberus_field_show','cerber-'.$tab,'custom',array('group'=>$tab,'option'=>'loginpath','type'=>'text','label'=>__('must not overlap with the existing pages or posts slug','cerber')));
@@ -63,8 +65,13 @@ function cerber_settings_init(){
 
 	add_settings_section('activity', __('Activity','cerber'), 'cerberus_section_activity', 'cerber-'.$tab);
 	add_settings_field('keeplog',__('Keep records for','cerber'),'cerberus_field_show','cerber-'.$tab,'activity',array('group'=>$tab,'option'=>'keeplog','type'=>'text','label'=>__('days','cerber'),'size'=>3));
+	//$http = _wp_http_get_object();
+	//if ($http->block_request(RIPE_HOST)) {}
+	add_settings_field('ip_extra',__('Drill down IP','cerber'),'cerberus_field_show','cerber-'.$tab,'activity',array('group'=>$tab,'option'=>'ip_extra','type'=>'checkbox','label'=>__('Retrieve extra WHOIS information for IP','cerber').' <a href="'.admin_url(cerber_get_opage('help')).'">Know more</a>'));
 	add_settings_field('usefile',__('Use file','cerber'),'cerberus_field_show','cerber-'.$tab,'activity',array('group'=>$tab,'option'=>'usefile','type'=>'checkbox','label'=>__('Write failed login attempts to the file','cerber')));
 
+
+	// Hardening tab
 
 	$tab='hardening'; // 'cerber-hardening' settings
 	register_setting( 'cerberus-'.$tab, 'cerber-'.$tab );
@@ -72,7 +79,8 @@ function cerber_settings_init(){
 	add_settings_field('stopenum',__('Stop user enumeration','cerber'),'cerberus_field_show','cerber-'.$tab,'hwp',array('group'=>$tab,'option'=>'stopenum','type'=>'checkbox','label'=>__('Block access to the pages like /?author=n','cerber')));
 	add_settings_field('xmlrpc',__('Disable XML-RPC','cerber'),'cerberus_field_show','cerber-'.$tab,'hwp',array('group'=>$tab,'option'=>'xmlrpc','type'=>'checkbox','label'=>__('Block access to the XML-RPC server (including Pingbacks and Trackbacks)','cerber')));
 	add_settings_field('nofeeds',__('Disable feeds','cerber'),'cerberus_field_show','cerber-'.$tab,'hwp',array('group'=>$tab,'option'=>'nofeeds','type'=>'checkbox','label'=>__('Block access to the RSS, Atom and RDF feeds','cerber')));
-	//add_settings_field('nohead',__('Clear HEAD','cerber'),'cerberus_field_show','cerber-'.$tab,'hwp',array('group'=>$tab,'option'=>'nohead','type'=>'checkbox','label'=>__('Clear HEAD section of HTML page','cerber')));
+	add_settings_field('norest',__('Disable REST API','cerber'),'cerberus_field_show','cerber-'.$tab,'hwp',array('group'=>$tab,'option'=>'norest','type'=>'checkbox','label'=>__('Block access to the WordPress REST API','cerber')));
+	//add_settings_field('cleanhead',__('Clean up HEAD','cerber'),'cerberus_field_show','cerber-'.$tab,'hwp',array('group'=>$tab,'option'=>'cleanhead','type'=>'checkbox','label'=>__('Remove generator and version tags from HEAD section','cerber')));
 	//add_settings_field('ping',__('Disable Pingback','cerber'),'cerberus_field_show','cerber-'.$tab,'hwp',array('group'=>$tab,'option'=>'ping','type'=>'checkbox','label'=>__('Block access to ping functional','cerber')));
 
 }
@@ -98,11 +106,14 @@ function cerberus_section_citadel($args){
 function cerberus_section_activity($args){
 }
 function cerberus_section_hardening($args){
-	echo __("These settings do not affect hosts from the ",'cerber').__('White IP Access List','cerber');
+	echo __("These settings do not affect hosts from the ",'cerber').' '.__('White IP Access List','cerber');
 }
 /*
-	Generate settings page with tabs
-*/
+ *
+ * Generate HTML for settings page with tabs
+ * @since 1.0
+ *
+ */
 function cerber_settings_page(){
 	global $wpdb;
 	$active_tab = isset( $_GET[ 'tab' ] ) ? $_GET[ 'tab' ] : 'main';
@@ -113,16 +124,22 @@ function cerber_settings_page(){
 		<h2><?php _e('Cerber Settings','cerber') ?></h2>
 		<h2 class="nav-tab-wrapper cerber-tabs">
 			<?php
-			echo '<a href="'.admin_url(cerber_get_opage().'&tab=main"').'" class="nav-tab '. ($active_tab == 'main' ? 'nav-tab-active' : '') .'">'. __('Main Settings','cerber') .'</a>';
+			echo '<a href="'.admin_url(cerber_get_opage('main')).'" class="nav-tab '. ($active_tab == 'main' ? 'nav-tab-active' : '') .'"><span class="dashicons dashicons-admin-settings"></span> '. __('Main Settings','cerber') .'</a>';
+
 			$total = $wpdb->get_var('SELECT count(ip) FROM '. CERBER_ACL_TABLE);
-			echo '<a href="'.admin_url(cerber_get_opage().'&tab=acl"').'" class="nav-tab '. ($active_tab == 'acl' ? 'nav-tab-active' : '') .'">'. __('Access Lists','cerber').' <sup class="acltotal">'.$total.'</sup></a>';
-			echo '<a href="'.admin_url(cerber_get_opage().'&tab=activity"').'" class="nav-tab '. ($active_tab == 'activity' ? 'nav-tab-active' : '') .'">'. __('Activity','cerber').'</a>';
+			echo '<a href="'.admin_url(cerber_get_opage('acl')).'" class="nav-tab '. ($active_tab == 'acl' ? 'nav-tab-active' : '') .'"><span class="dashicons dashicons-admin-network"></span> '. __('Access Lists','cerber').' <sup class="acltotal">'.$total.'</sup></a>';
+
+			echo '<a href="'.admin_url(cerber_get_opage('activity')).'" class="nav-tab '. ($active_tab == 'activity' ? 'nav-tab-active' : '') .'"><span class="dashicons dashicons-welcome-view-site"></span> '. __('Activity','cerber').'</a>';
+
 			$total = $wpdb->get_var('SELECT count(ip) FROM '. CERBER_BLOCKS_TABLE);
-			echo '<a href="'.admin_url(cerber_get_opage().'&tab=lockouts"').'" class="nav-tab '. ($active_tab == 'lockouts' ? 'nav-tab-active' : '') .'">'. __('Lockouts','cerber').' <sup class="loctotal">'.$total.'</sup></a>';
-			echo '<a href="'.admin_url(cerber_get_opage().'&tab=hardening"').'" class="nav-tab '. ($active_tab == 'hardening' ? 'nav-tab-active' : '') .'">'. __('Hardening','cerber').'</a>';
+			echo '<a href="'.admin_url(cerber_get_opage('lockouts')).'" class="nav-tab '. ($active_tab == 'lockouts' ? 'nav-tab-active' : '') .'"><span class="dashicons dashicons-shield"></span> '. __('Lockouts','cerber').' <sup class="loctotal">'.$total.'</sup></a>';
+
+			echo '<a href="'.admin_url(cerber_get_opage('hardening')).'" class="nav-tab '. ($active_tab == 'hardening' ? 'nav-tab-active' : '') .'"><span class="dashicons dashicons-shield-alt"></span> '. __('Hardening','cerber').'</a>';
 			//echo '<a href="'.admin_url(cerber_get_opage().'&tab=messages"').'" class="nav-tab '. ($active_tab == 'messages' ? 'nav-tab-active' : '') .'">'. __('Messages','cerber').'</a>';
-			echo '<a href="'.admin_url(cerber_get_opage().'&tab=tools"').'" class="nav-tab '. ($active_tab == 'tools' ? 'nav-tab-active' : '') .'">'. __('Tools','cerber').'</a>';
-			echo '<a href="'.admin_url(cerber_get_opage().'&tab=help"').'" class="nav-tab '. ($active_tab == 'help' ? 'nav-tab-active' : '') .'">'. __('Help','cerber').'</a>';
+
+			echo '<a href="'.admin_url(cerber_get_opage('tools')).'" class="nav-tab '. ($active_tab == 'tools' ? 'nav-tab-active' : '') .'"><span class="dashicons dashicons-admin-tools"></span> '. __('Tools','cerber').'</a>';
+
+			echo '<a href="'.admin_url(cerber_get_opage('help')).'" class="nav-tab '. ($active_tab == 'help' ? 'nav-tab-active' : '') .'"><span class="dashicons dashicons-editor-help"></span> '. __('Help','cerber').'</a>';
 			?>
 		</h2>
 		<?php
@@ -138,15 +155,21 @@ function cerber_settings_page(){
 		else cerber_show_settings($active_tab);
 		echo '</div>';
 
+		$pi = get_file_data(cerber_plugin_file(),array('Version' => 'Version'),'plugin');
+		$pi ['time'] = time();
+		$pi ['user'] = get_current_user_id();
+		update_site_option('_cp_tabs_'.$active_tab,serialize($pi));
+
 		?>
 	</div>
 	<?php
 }
 /*
-	Settings screen (one tab)
-*/
+ * Display settings screen (one tab)
+ *
+ */
 function cerber_show_settings($active_tab = null){
-	if (is_multisite()) $action =  ''; // Settings API doesn't work in multisite. Post data will handle in the cerber_ms_update()
+	if (is_multisite()) $action =  ''; // Settings API doesn't work in multisite. Post data will be handled in the cerber_ms_update()
 	else $action ='options.php';
 	// Display form with settings fields via Settings API
 	echo '<form method="post" action="'.$action.'">';
@@ -254,8 +277,11 @@ function cerber_sanitize_options($new,$old,$option){ // $option added in WP 4.4.
 }
 
 /*
-	Process POST Form for settings screens in multisite mode. Because of Settigns API doesn't work in multisite mode!
-*/
+ *
+ * Process POST Form for settings screens in multisite mode.
+ * Because of Settigns API doesn't work in multisite mode!
+ *
+ */
 if (is_multisite())  add_action('admin_init', 'cerber_ms_update'); // allowed only for network
 function cerber_ms_update() {
 	if ($_SERVER['REQUEST_METHOD']!='POST' || !isset($_POST['action']) || $_POST['action'] != 'update') {
@@ -276,53 +302,62 @@ function cerber_ms_update() {
 	$new = apply_filters('pre_update_option_'.$opt_name,$new,$old,$opt_name);
 	update_site_option($opt_name,$new);
 }
-
 /*
  * 	Default settings
  *
  */
-function cerber_get_defaults($field = null){
-	$all_defaults = array(CERBER_OPT => array(
-		'attempts' 		=> 3, 'period' => 60,
-		'lockout' 		=> 60,
-		'agperiod' 		=> 24, 'aglocks' => 2, 'aglast' => 4,
-		'notify' 		=> 1,
-		'above' 		=> 5,
+function cerber_get_defaults($field = null) {
+	$all_defaults = array(
+		CERBER_OPT   => array(
+			'attempts' => 3,
+			'period'   => 60,
+			'lockout'  => 60,
+			'agperiod' => 24,
+			'aglocks'  => 2,
+			'aglast'   => 4,
+			'notify'   => 1,
+			'above'    => 5,
 
-		'proxy' 		=> 0,
+			'proxy' => 0,
 
-		'subnet' 		=> 0,
-		'nonusers'		=> 1,
-		'wplogin'		=> 0,
-		'noredirect' 	=> 1,
+			'subnet'     => 0,
+			'nonusers'   => 1,
+			'wplogin'    => 0,
+			'noredirect' => 1,
 
-		'loginpath'     => '',
-		'loginnowp'     => 0,
+			'loginpath' => '',
+			'loginnowp' => 0,
 
-		'cilimit'		=> 200,
-		'ciperiod'      => 30,
-		'ciduration' 	=> 60,
-		'ciwhite' 		=> 1,
-		'cinotify' 		=> 1,
-		'email' 		=> '',
+			'cilimit'    => 200,
+			'ciperiod'   => 30,
+			'ciduration' => 60,
+			'ciwhite'    => 1,
+			'cinotify'   => 1,
+			'email'      => '',
 
-		'keeplog' 		=> 90,
-		'usefile' 		=> 0,
+			'keeplog' => 30,
+			'ip_extra' => 1,
+			'usefile' => 0,
 
 		),
 		CERBER_OPT_H => array(
-		'stopenum' 		=> 1,
-		'xmlrpc' 		=> 1,
-		'ping' 		    => 0,
-		'nofeeds' 		=> 0,
-	),);
-	if ($field) {
-		foreach ($all_defaults as $option) {
-			if (isset($option[$field])) return $option[$field];
+			'stopenum' => 1,
+			'xmlrpc'   => 1,
+			'nofeeds'  => 0,
+			'norest'  => 1,
+			'cleanhead'  => 1,
+		),
+	);
+	if ( $field ) {
+		foreach ( $all_defaults as $option ) {
+			if ( isset( $option[ $field ] ) ) {
+				return $option[ $field ];
+			}
 		}
 		return false;
+	} else {
+		return $all_defaults;
 	}
-	else return $all_defaults;
 }
 
 /*
@@ -376,15 +411,15 @@ function cerber_get_email() {
 	Right way to access to the Cerber settings
 */
 function cerber_load_defaults() {
-	$save=array();
+	$save = array();
 	foreach ( cerber_get_defaults() as $option_name => $fields ) {
 		foreach ( $fields as $field_name => $def ) {
-			$save[$field_name] = $def;
+			$save[ $field_name ] = $def;
 		}
 	}
 	$old = cerber_get_options();
 	$save['loginpath'] = $old['loginpath'];
-	cerber_save_options($save);
+	cerber_save_options( $save );
 }
 /*
 	Return link to the admin pages
@@ -395,4 +430,45 @@ function cerber_get_opage($tag=''){
 	$opage = $target . '?page=cerber-settings';
 	if ($tag) $opage .= '&tab='.$tag;
 	return $opage;
+}
+
+/*
+ * Add per screen settings
+ * @since 2.1
+ *
+ */
+//add_action("load-$page_hook_suffix); $page_hook_suffix = add_menu_page();
+add_action("load-settings_page_cerber-settings", "cerber_screen_options");
+function cerber_screen_options() {
+	if (!in_array($_GET['tab'],array('lockouts','activity'))) return;
+	$args = array(
+		'label' => __( 'Number of items per page:' ),
+		'default' => 50,
+		'option' => 'cerber_screen_'.$_GET['tab'],
+	);
+	add_screen_option( 'per_page', $args );
+}
+/*
+ * Allows to save options to the user meta
+ * @since 2.1
+ *
+ */
+add_filter('set-screen-option', 'cerber_save_screen_option', 10, 3);
+function cerber_save_screen_option($status, $option, $value) {
+	if ( 'cerber_pp_activity' == $option ) return $value;
+	if ( 'cerber_pp_lockouts' == $option ) return $value;
+}
+/*
+ * Retrieve option for current screen
+ * @since 2.1
+ *
+ */
+function cerber_get_pp(){
+	$screen = get_current_screen();
+	$screen_option = $screen->get_option('per_page', 'option');
+	$per_page = get_user_meta(get_current_user_id(), $screen_option, true);
+	if ( empty ( $per_page) || $per_page < 1 ) {
+		$per_page = $screen->get_option( 'per_page', 'default' );
+	}
+	return $per_page;
 }
