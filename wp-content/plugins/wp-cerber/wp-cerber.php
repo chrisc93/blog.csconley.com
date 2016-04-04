@@ -5,7 +5,7 @@
 	Description: Protects site against brute force attacks. Comprehensive control of user activity. Restrict login by IP access lists. Limit login attempts. Feel free to contact developer via wpcerber@gmail.com or at the site <a href="http://wpcerber.com">wpcerber.com</a>.
 	Author: Gregory M
 	Author URI: http://wpcerber.com
-	Version: 2.7.1
+	Version: 2.7.2
 	Text Domain: cerber
 	Domain Path: /languages
 	Network: true
@@ -55,11 +55,25 @@ class WP_Cerber {
 	private $remote_ip;
 	private $status;
 	function __construct() {
-		if (cerber_get_options('proxy')) $this->remote_ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-		else $this->remote_ip = $_SERVER['REMOTE_ADDR'];
-		$this->remote_ip = filter_var($this->remote_ip,FILTER_VALIDATE_IP);
+		if (cerber_get_options('proxy') && isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $list = explode(',',$_SERVER['HTTP_X_FORWARDED_FOR']);
+            foreach ($list as $maybe_ip){
+                $this->remote_ip = filter_var(trim($maybe_ip),FILTER_VALIDATE_IP);
+                if ($this->remote_ip) break;
+            }
+        }
+        else{
+            if (isset($_SERVER['REMOTE_ADDR'])) $this->remote_ip = $_SERVER['REMOTE_ADDR'];
+            elseif (isset($_SERVER['HTTP_X_REAL_IP'])) $this->remote_ip = $_SERVER['HTTP_X_REAL_IP'];
+            elseif (isset($_SERVER['HTTP_CLIENT_IP'])) $this->remote_ip = $_SERVER['HTTP_CLIENT_IP'];
+		    elseif (isset($_SERVER['SERVER_ADDR'])) $this->remote_ip = $_SERVER['SERVER_ADDR'];
+            $this->remote_ip = filter_var($this->remote_ip,FILTER_VALIDATE_IP);
+        }
 
-		$this->status = 0; // Default: OK!
+        // No IP address was found? Roll back to localhost.
+        if (!$this->remote_ip) $this->remote_ip = '127.0.0.1'; // including WP-CLI, other way is: if defined('WP_CLI')
+
+        $this->status = 0; // Default: OK!
 		if (cerber_is_citadel()) $this->status = 3;
 		elseif (!cerber_is_allowed($this->remote_ip)) {
 			if (cerber_acl_check($this->remote_ip,'B')) $this->status = 1;
@@ -103,6 +117,18 @@ class WP_Cerber {
 }
 
 $wp_cerber = new WP_Cerber();
+
+/*
+try {
+    $wp_cerber = new WP_Cerber();
+}
+catch(Exception $e) {
+    //wp_die($e->getMessage());
+    return;
+	//trigger_error($e->getMessage(), E_USER_NOTICE);
+}
+*/
+
 
 /*
 	Initialize global Cerber's variables and state
@@ -517,10 +543,12 @@ function cerber_block_add($ip, $reason = '', $duration = null){
 
 	if (!$duration) $duration = cerber_calc_duration($ip);
 	$until = time() + $duration;
-	$result = $wpdb->query($wpdb->prepare('INSERT INTO '. CERBER_BLOCKS_TABLE . ' (ip,block_until,reason) VALUES (%s,%d,%s)',$ip,$until,$reason));
+	//$result = $wpdb->query($wpdb->prepare('INSERT INTO '. CERBER_BLOCKS_TABLE . ' (ip,block_until,reason) VALUES (%s,%d,%s)',$ip,$until,$reason));
+    $result = $wpdb->insert(CERBER_BLOCKS_TABLE,array('ip'=>$ip,'block_until'=>$until,'reason'=>$reason),array('%s','%d','%s'));
 	if ($result) {
 		$wpdb->query($wpdb->prepare('INSERT INTO '. CERBER_LOG_TABLE . ' (ip,stamp,activity) VALUES (%s,%d,%d)',$wp_cerber->getRemoteIp(),time(),$activity));
 	}
+
 	if (cerber_get_options('notify')) {
 		$count = $wpdb->get_var('SELECT count(ip) FROM '. CERBER_BLOCKS_TABLE );
 		if ($count > cerber_get_options('above')) cerber_send_notify('lockout');
@@ -898,7 +926,8 @@ function cerber_date($time){
 */
 register_activation_hook( __FILE__, 'cerber_activate' );
 function cerber_activate(){
-	global $wpdb,$wp_version;
+	global $wpdb,$wp_version,$wp_cerber;
+    $assets_url = plugin_dir_url(CERBER_FILE).'assets';
 
 	cerber_load_lang();
 
@@ -963,14 +992,18 @@ function cerber_activate(){
 	cerber_disable_citadel();
 	cerber_get_groove();
 
-	cerber_add_white(cerber_get_subnet(cerber_get_ip())); // Protection for non-experienced user
+    if (!is_object($wp_cerber)) {
+        $wp_cerber = new WP_Cerber();
+    }
+    cerber_add_white(cerber_get_subnet($wp_cerber->getRemoteIp())); // Protection for non-experienced user
 	
 	update_site_option('cerber_admin_message',
-		__('WP Cerber is now active and has started protecting your site.','cerber').
-		'<p>'.__('It\'s important to check security settings','cerber').
-		' <span class="dashicons dashicons-admin-settings"></span> <a href="'.admin_url(cerber_get_opage('main')).'">'.__('Main Settings','cerber').'</a>'.
-		' | <span class="dashicons dashicons-admin-network"></span> <a href="'.admin_url(cerber_get_opage('acl')).'">'.__('Access Lists','cerber').'</a>'.
-		' | <span class="dashicons dashicons-shield-alt"></span> <a href="'.admin_url(cerber_get_opage('hardening')).'">'.__('Hardening','cerber').'</a>'.
+		'<img style="float:left; margin-left:-10px;" src="'.$assets_url.'/icon-128x128.png">'.
+        '<p style="font-size:120%;">'.__('WP Cerber is now active and has started protecting your site.','cerber').'</p>'.
+		' <p><b>'.__("It's important to check security settings.",'cerber').'</b> &nbsp;<a href="http://wpcerber.com/" target="_blank">'.__('Read our blog','cerber').'</a></p>'.
+		' <p> </p><p><span class="dashicons dashicons-admin-settings"></span> <a href="'.admin_url(cerber_get_opage('main')).'">'.__('Main Settings','cerber').'</a>'.
+		' <span style="margin-left:20px;" class="dashicons dashicons-admin-network"></span> <a href="'.admin_url(cerber_get_opage('acl')).'">'.__('Access Lists','cerber').'</a>'.
+		' <span style="margin-left:20px;" class="dashicons dashicons-shield-alt"></span> <a href="'.admin_url(cerber_get_opage('hardening')).'">'.__('Hardening','cerber').'</a>'.
 		'</p>');
 
 	// Check for existing options

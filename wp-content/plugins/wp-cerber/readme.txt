@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: security, access control, authentication, limit, login, access, admin, users, protect, protection, brute force, bruteforce, activity, log, logging, block, hide wp-admin, wp-login, wp-admin, fail2ban, monitoring, rename wp login, whitelist, blacklist, wordpress security, xmlrpc, user enumeration, hardening
 Requires at least: 3.3
 Tested up to: 4.4.2
-Stable tag: 2.7.1
+Stable tag: 2.7.2
 License: GPLv2
 
 Protects site against brute force attacks. Restrict login by IP access lists. Limit login attempts. Comprehensive control of user activity.
@@ -179,8 +179,11 @@ To get access to you dashboard you need to copy WP Cerber Reset folder to the pl
 
 == Changelog ==
 
+= 2.7.2 =
+* Fixed bug for non-English WordPress configuration: the plugin is unable to block IP in some server environment. If you have configured language other than English you have to install this release.
+
 = 2.7.1 =
-* Fixed two small bugs related to 1) unable to remove IP subnet from the Access Lists and 2) getting IP address in case of reverse proxy don't work properly.
+* Fixed two small bugs related to 1) unable to remove IP subnet from the Access Lists and 2) getting IP address in case of reverse proxy doesn't work properly.
 
 = 2.7 =
 

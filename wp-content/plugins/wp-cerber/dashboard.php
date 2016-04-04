@@ -377,7 +377,7 @@ function cerber_ip_extra_view($ip){
 		if (isset($ip_info['country'])) $country = $ip_info['country'];
 	}
 
-	$ret = '<div id="ip_extra"><div style="line-height: 28px; font-size: 110%; float: left;"><span style="font-weight: bold;">IP: '.$ip.' '.$country.'</span> '.$tip.'</div>'.$filters.'<div style="float:right;">'.$form.'</div></div>';
+	$ret = '<div id="ip-extra"><div style="line-height: 28px; font-size: 110%; float: left;"><span style="font-weight: bold;">IP: '.$ip.' '.$country.'</span> '.$tip.'</div>'.$filters.'<div style="float:right;">'.$form.'</div></div>';
 
 	return $ret.$whois;
 }
@@ -552,6 +552,34 @@ function cerber_show_tools(){
 	$form .= '<p><input id="importacl" name="importacl" value="1" type="checkbox" checked> <label for="importacl">'.__('Access Lists','cerber').'</label>';
 	$form .= '<p><input type="submit" name="cerber_import" id="submit" class="button button-primary" value="'.__('Upload file').'"></form>';
 	echo $form;
+
+	?>
+	<h3 style="margin-top: 2em;">Diagnostic</h3>
+    <input type="button" class="button button-primary" value="Show diagnostic information"
+           onclick="toggle_visibility('diagnostic'); return false;" /><p>
+		<form id="diagnostic" style="display: none; margin-top: 2em;">
+            <?php echo cerber_check_itself(); ?>
+            <h4>System info</h4>
+			<textarea style="width: 100%; height: 400px;" name="dia"><?php
+                echo 'PHP version: ' . phpversion()."\n";
+                foreach ($_SERVER as $key => $value) {
+                    if ($key == 'HTTP_COOKIE') continue;
+                    //echo '['.$key.'] => '. htmlspecialchars($value)."\n";
+                    echo '['.$key.'] => '. strip_tags($value)."\n";
+                }
+                ?>
+			</textarea>
+		</form>
+	<script type="text/javascript">
+	function toggle_visibility(id) {
+       var e = document.getElementById(id);
+       if(e.style.display == 'block')
+          e.style.display = 'none';
+       else
+          e.style.display = 'block';
+    }
+	</script>
+	<?php
 }
 /*
 	Create export file
@@ -667,7 +695,7 @@ function cerber_quick_w(){
 	echo '<table style="width:100%;"><tr><td style="width:50%; vertical-align:top;"><table><tr><td class="bigdig">'.$failed.'</td><td class="per">'.$failed_ch.'</td></tr></table><p>'.__('failed attempts','cerber').' '.__('in 24 hours','cerber').'<br/>(<a href="'.$act.'&filter_activity=7">'.__('view all','cerber').'</a>)</p></td>';
 	echo '<td style="width:50%; vertical-align:top;"><table><tr><td class="bigdig">'.$locked.'</td><td class="per">'.$locked_ch.'</td></tr></table><p>'.__('lockouts','cerber').' '.__('in 24 hours','cerber').'<br/>(<a href="'.$act.'&filter_activity[]=10&filter_activity[]=11">'.__('view all','cerber').'</a>)</p></td></tr></table>';
 
-	echo '<table id="quick_info"><tr><td>'.__('Lockouts at the moment','cerber').'</td><td>'.$lockouts.'</td></tr>';
+	echo '<table id="quick-info"><tr><td>'.__('Lockouts at the moment','cerber').'</td><td>'.$lockouts.'</td></tr>';
 	echo '<tr><td>'.__('Last lockout','cerber').'</td><td>'.$last.'</td></tr>';
 	echo '<tr><td style="padding-top:15px;">'.__('White IP Access List','cerber').'</td><td style="padding-top:15px;"><b>'.$w_count.' '._n('entry','entries',$w_count,'cerber').'</b></td></tr>';
 	echo '<tr><td>'.__('Black IP Access List','cerber').'</td><td><b>'.$b_count.' '._n('entry','entries',$b_count,'cerber').'</b></td></tr>';
@@ -846,7 +874,7 @@ function cerber_admin_notice(){
 	if ($notices = get_site_option('cerber_admin_notice'))
 		echo '<div class="update-nag crb-note"><p>'.$notices.'</p></div>'; // class="updated" - green, class="update-nag" - yellow and above the page title,
 	if ($notices = get_site_option('cerber_admin_message'))
-		echo '<div class="updated crb-msg"><p>'.$notices.'</p></div>'; // class="updated" - green, class="update-nag" - yellow and above the page title,
+		echo '<div class="updated crb-msg" style="overflow: auto;"><p>'.$notices.'</p></div>'; // class="updated" - green, class="update-nag" - yellow and above the page title,
 	update_site_option('cerber_admin_notice','');
 	update_site_option('cerber_admin_message','');
 }
@@ -919,6 +947,30 @@ function cerber_action_links($actions, $plugin_file, $plugin_data, $context){
 		$actions = array_merge ($link,$actions);
 	}
 	return $actions;
+}
+/*
+ * Checks state of the art
+ * @since 2.7.2
+ *
+ */
+function cerber_check_itself(){
+    global $wpdb,$wp_cerber;
+    $list = array();
+    if (!$wpdb->get_row("SHOW TABLES LIKE '".CERBER_LOG_TABLE."'")) $list[] = 'Table '.CERBER_LOG_TABLE.' not found!';
+	/*else {
+        //show table status like 'cerber_blocks' 
+		$columns = $wpdb->get_results("SHOW FULL COLUMNS FROM ".CERBER_LOG_TABLE);
+		foreach ($columns as $column) {
+            foreach ($column as $key => $value) {
+                $field_data[] = '<tr><td>'.$key.'</td><td>'.$value.'</td>';
+            }
+		}
+        echo '<table>'.implode('',$field_data).'</table>';
+	}*/
+    if (!$wpdb->get_row("SHOW TABLES LIKE '".CERBER_ACL_TABLE."'")) $list[] = 'Table '.CERBER_ACL_TABLE.' not found!';
+    if (!$wpdb->get_row("SHOW TABLES LIKE '".CERBER_BLOCKS_TABLE."'")) $list[] = 'Table '.CERBER_BLOCKS_TABLE.' not found!';
+    if ($wp_cerber->getRemoteIp() == '127.0.0.1') $list[] = 'It seems that we are unable to get IP addresses.';
+    if ($list) return '<h4>Below are some problems with Cerber plugin</h4>'.implode('<p>',$list);
 }
 
 /*
@@ -1140,7 +1192,7 @@ function cerber_admin_head(){
 	.cerber-widget .bigdig {
 		font-size: 250%;
 	}
-	#quick_info td {
+	#quick-info td {
 		padding: 0 8px 6px 0;
 		font-size:110%;
 	}
@@ -1165,7 +1217,7 @@ function cerber_admin_head(){
 		display:block;
 	}
 	/* Ip extra, whois */
-	#ip_extra{
+	#ip-extra{
 		overflow: auto;
 		/*margin-bottom: 10px;*/
 		padding: 15px 25px;
