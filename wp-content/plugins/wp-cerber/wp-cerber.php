@@ -38,7 +38,7 @@ define('WP_XMLRPC_SCRIPT','xmlrpc.php');
 define('WP_TRACKBACK_SCRIPT','wp-trackback.php');
 define('WP_PING_SCRIPT','wp-trackback.php');
 define('WP_SIGNUP_SCRIPT','wp-signup.php');
-define('CERBER_REQ_PHP','5.2.0');
+define('CERBER_REQ_PHP','5.3.0');
 define('CERBER_REQ_WP','3.3');
 define('CERBER_FILE',__FILE__);
 

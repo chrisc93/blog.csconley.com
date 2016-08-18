@@ -3,7 +3,7 @@ Contributors: gioni
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SR8RJXFU35EW8
 Tags: security, access control, authentication, limit, login, access, admin, users, protect, protection, brute force, bruteforce, activity, log, logging, block, hide wp-admin, wp-login, wp-admin, fail2ban, monitoring, rename wp login, whitelist, blacklist, wordpress security, xmlrpc, user enumeration, hardening
 Requires at least: 3.3
-Tested up to: 4.4.2
+Tested up to: 4.5.3
 Stable tag: 2.7.2
 License: GPLv2
 

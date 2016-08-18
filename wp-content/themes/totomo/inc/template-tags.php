@@ -51,9 +51,9 @@ function totomo_posted_on() {
 		<li>
 			<time class="date fa fa-clock-o" datetime="<?php the_time( 'c' ); ?>" pubdate><?php the_time( get_option( 'date_format' ) ); ?></time>
 		</li>
-		<li>
+		<!--<li>
 			<?php comments_popup_link( __( 'No Comments', 'totomo' ) , __( '1 Comment', 'totomo' ) , __( '% Comments', 'totomo' ), 'comments-link fa fa-comments' ); ?>
-		</li>
+		</li>-->
 		<li class="fa fa-tags">
 			<?php the_category( ', ' ); ?>
 		</li>
