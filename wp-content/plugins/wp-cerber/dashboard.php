@@ -39,16 +39,10 @@ function cerber_show_lockouts(){
 	if ($rows = $wpdb->get_results('SELECT * FROM '. CERBER_BLOCKS_TABLE . ' ORDER BY block_until DESC LIMIT '.$limit)) {
 		$total=$wpdb->get_var('SELECT count(ip) FROM '. CERBER_BLOCKS_TABLE);
 		$list=array();
-		$base_url = admin_url(cerber_get_opage('activity'));
+		$base_url = cerber_get_opage('activity');
 		$assets_url = plugin_dir_url(CERBER_FILE).'assets/';
 		foreach ($rows as $row) {
 			$ip = '<a href="'.$base_url.'&filter_ip='.$row->ip.'">'.$row->ip.'</a>';
-
-			//$ip_id = str_replace('.','-',$row->ip);
-			//$ip_id = str_replace(':','_',$ip_id); // IPv6
-			//if (($ip_info = unserialize(get_transient($ip_id))) && isset($ip_info['hostname'])) $hostname = $ip_info['hostname'];
-			//else $hostname = '<img data-ip-id="'.$ip_id .'" class="crb-no-hn" src="'.$assets_url.'ajax-loader-ip.gif" />'."\n";
-
 			$ip_info = cerber_get_ip_info($row->ip,true);
 			if (isset($ip_info['hostname'])) $hostname = $ip_info['hostname'];
 			else {
@@ -88,7 +82,7 @@ function cerber_acl_form(){
 */
 function cerber_acl_get_table($tag){
 	global $wpdb;
-	$activity_url = admin_url(cerber_get_opage('activity'));
+	$activity_url = cerber_get_opage('activity');
 	if ($rows = $wpdb->get_results('SELECT * FROM '. CERBER_ACL_TABLE . " WHERE tag = '".$tag."' ORDER BY ip")) {
 		foreach ($rows as $row) $list[]='<td>'.$row->ip.'</td><td><a class="delete_entry" href="javascript:void(0)" data-ip="'.$row->ip.'">'.__('Remove','cerber').'</a></td><td><a href="'.$activity_url.'&filter_ip='.$row->ip.'">'.__('Check for activity','cerber').'</a></td>';
 		$ret = '<table id="acl_'.$tag.'" class="acl_table"><tr>'.implode('</tr><tr>',$list).'</tr></table>';
@@ -146,19 +140,6 @@ function cerber_admin_ajax() {
 			$ip = cerber_get_ip_id($ip_id);
 			$ip_info = cerber_get_ip_info($ip);
 			$response[$ip_id] = $ip_info['hostname'];
-
-			/*if (($ip_info = unserialize(get_transient($ip_id))) && isset($ip_info['hostname'])) $response[$ip_id] = $ip_info['hostname'];
-			else {
-				$ip = str_replace('-','.',$ip_id);
-				$ip = str_replace('_',':',$ip); // IPv6
-				$hostname = @gethostbyaddr($ip);
-				if ($hostname) {
-					set_transient($ip_id, serialize(array('hostname' => $hostname)), 24 * 3600);
-					$response[$ip_id] = $hostname;
-				}
-				else $response[$ip_id] = __('unknown','cerber');
-			}
-			*/
 		}
 	}
 	echo json_encode($response);
@@ -244,7 +225,7 @@ function cerber_admin_request(){
 function cerber_show_activity(){
 	global $wpdb,$activity_msg,$blog_id;
 	$labels = cerber_get_labels('activity');
-	$base_url = admin_url(cerber_get_opage('activity'));
+	$base_url = cerber_get_opage('activity');
 	$per_page = cerber_get_pp();
 	$where = array();
 	$falist = array();
@@ -420,7 +401,7 @@ function cerber_admin_bar( $wp_admin_bar ) {
 		'parent' => 'network-admin',
 		'id'    => 'cerber_admin',
 		'title' => __('WP Cerber','cerber'),
-		'href'  => admin_url(cerber_get_opage()),
+		'href'  => cerber_get_opage(),
 	);
 	$wp_admin_bar->add_node( $args );
 }
@@ -494,8 +475,8 @@ function cerber_u_sortable($sortable_columns) {
 /*
 	Display custom columns on the Users screen
 */
-add_filter( 'manage_users_custom_column' , 'cerber_show_users_columns', 10, 3 );
-function cerber_show_users_columns($value, $column, $user_id) {
+add_filter( 'manage_users_custom_column' , 'cerber_show_u_columns', 10, 3 );
+function cerber_show_u_columns($value, $column, $user_id) {
 	global $wpdb,$current_screen,$user_login;
 	$ret = $value;
 	switch ($column) {
@@ -506,26 +487,20 @@ function cerber_show_users_columns($value, $column, $user_id) {
 		case 'cbla' :
 			$ret = $wpdb->get_var('SELECT MAX(stamp) FROM '.CERBER_LOG_TABLE.' WHERE user_id = '.$user_id);
 			if ($ret) {
-				$act_link = admin_url(cerber_get_opage().'&tab=activity');
-				$gmt_offset=get_option('gmt_offset')*3600;
-				$tf=get_option('time_format');
-				$df=get_option('date_format');
-				$ret = '<a href="'.$act_link.'&filter_user='.$user_id.'">'.date($df.' '.$tf, $gmt_offset + $ret).'</a>';
+				$act_link = cerber_get_opage('activity');
+				$ret = '<a href="'.$act_link.'&filter_user='.$user_id.'">'.cerber_date($ret).'</a>';
 			}
 			else $ret=__('Never','cerber');
 		break;
 		case 'cbfl' :
-			$act_link = admin_url(cerber_get_opage().'&tab=activity');
+			$act_link = cerber_get_opage('activity');
 			$u=get_userdata($user_id);
 			$failed = $wpdb->get_var('SELECT count(user_id) FROM '.CERBER_LOG_TABLE.' WHERE user_login = \''.$u->user_login.'\' AND activity = 7 AND stamp > ' . (time() - 24 * 3600));
 			$ret = '<a href="'.$act_link.'&filter_login='.$u->user_login.'&filter_activity=7">'.$failed.'</a>';
 		break;
 		case 'cbdr' :
-			$time=strtotime($wpdb->get_var("SELECT user_registered FROM  $wpdb->users WHERE id = ".$user_id));
-			$gmt_offset=get_option('gmt_offset')*3600;
-			$tf=get_option('time_format');
-			$df=get_option('date_format');
-			$ret = date($df.' '.$tf, $gmt_offset + $time);
+			$time = strtotime($wpdb->get_var("SELECT user_registered FROM  $wpdb->users WHERE id = ".$user_id));
+			$ret = cerber_date($time);
 		break;
 	}
 	return $ret;
@@ -546,8 +521,8 @@ function cerber_show_tools(){
 	$form .= '<h3 style="margin-top:2em;">'.__('Import settings from the file','cerber').'</h3>';
 	$form .= '<p>'.__('When you click the button below, file will be uploaded and all existing settings will be overridden.','cerber').'</p>';
 	$form .= '<p>'.__('Select file to import.','cerber').' '. sprintf( __( 'Maximum upload file size: %s.'), esc_html(size_format(wp_max_upload_size())));
-	$form .= '<form action="" method="post" enctype="multipart/form-data">';
-	$form .= '<p><input type="file" name="ifile" id="ifile">';
+	$form .= '<form action="" method="post" enctype="multipart/form-data">'.wp_nonce_field( 'crb_import', 'crb_field');
+	$form .= '<p><input type="file" name="ifile" id="ifile" required="required">';
 	$form .= '<p>'.__('What do you want to import?','cerber').'</p><p><input id="importset" name="importset" value="1" type="checkbox" checked> <label for="importset">'.__('Settings','cerber').'</label>';
 	$form .= '<p><input id="importacl" name="importacl" value="1" type="checkbox" checked> <label for="importacl">'.__('Access Lists','cerber').'</label>';
 	$form .= '<p><input type="submit" name="cerber_import" id="submit" class="button button-primary" value="'.__('Upload file').'"></form>';
@@ -609,7 +584,8 @@ function cerber_export(){
 add_action('admin_init','cerber_import');
 function cerber_import(){
 	global $wpdb;
-	if ($_SERVER['REQUEST_METHOD']!='POST' || !isset($_POST['cerber_import'])) return;
+	if (!isset($_POST['cerber_import']) || $_SERVER['REQUEST_METHOD']!='POST') return;
+	check_admin_referer('crb_import','crb_field');
 	if (!current_user_can('manage_options')) wp_die('Upload failed.');
 	$ok = true;
 	if (!is_uploaded_file($_FILES['ifile']['tmp_name'])) {
@@ -620,7 +596,7 @@ function cerber_import(){
 		$p = strrpos($file,'==/');
 		$data = substr($file,0,$p);
 		$sys = explode('/',substr($file,$p));
-		if ($sys[3] == 'EOF' && crc32($data) == $sys[2] && $data = json_decode($data, true)) {
+		if ($sys[3] == 'EOF' && crc32($data) == $sys[2] && ($data = json_decode($data, true))) {
 
 			if ($_POST['importset'] && $data['options'] && is_array($data['options']) && !empty($data['options'])) {
 				$data['options']['loginpath'] = urldecode($data['options']['loginpath']); // needed to work filter cerber_sanitize_options()
@@ -660,10 +636,10 @@ function cerber_widgets() {
 */
 function cerber_quick_w(){
 	global $current_user,$wpdb;
-	$set = admin_url(cerber_get_opage());
-	$act = admin_url(cerber_get_opage('activity'));
-	$acl = admin_url(cerber_get_opage('acl'));
-	$loc = admin_url(cerber_get_opage('lockouts'));
+	$set = cerber_get_opage();
+	$act = cerber_get_opage('activity');
+	$acl = cerber_get_opage('acl');
+	$loc = cerber_get_opage('lockouts');
 	//$midnight = strtotime('today');
 	$opt = cerber_get_options();
 	$failed = $wpdb->get_var('SELECT count(ip) FROM '. CERBER_LOG_TABLE .' WHERE activity IN (7) AND stamp > '.(time() - 24 * 3600));
@@ -814,8 +790,8 @@ function cerber_show_help() {
 function cerber_show_aside($page){
 
 	$aside = array();
-	if (!in_array($page,array('main','acl','messages','tools','help','hardening'))) return;
-	if (in_array($page,array('main','hardening'))) {
+	if (in_array($page,array('activity','lockouts'))) return;
+	if (in_array($page,array('main','hardening',''))) {
 		$aside[]='<div class="crb-box">
 			<h3>'.__('Confused about some settings?','cerber').'</h3>'
 			.__('You can easily load default recommended settings using button below','cerber').'
@@ -831,7 +807,8 @@ function cerber_show_aside($page){
 			<p><i>* '.__("doesn't affect Custom login URL and Access Lists",'cerber').'</i></p>
 		</div>';
 	}
-	if (in_array($page,array('main','acl','messages','tools','help','hardening'))) {
+	//if (in_array($page,array('main','acl','messages','tools','help','hardening'))) {
+	if (true) {
 		$aside[]='<div class="crb-box">
 			<h3><span class="dashicons-before dashicons-lightbulb"></span> '.__('Read our blog','cerber').'</h3>
 			<p><a href="http://wpcerber.com/hardening-wordpress-with-wp-cerber/" target="_blank">Hardening WordPress with WP Cerber</a>
@@ -866,7 +843,7 @@ function cerber_admin_notice(){
 		echo '<div class="update-nag crb-alarm"><p>'.
 		__('Attention! Citadel mode is now active. Nobody is able to login.','cerber').
 		' &nbsp; <a href="'.wp_nonce_url(add_query_arg(array('citadel' => 'deactivate')),'control','cerber_nonce').'">'.__('Deactivate','cerber').'</a>'.
-		' | <a href="'.admin_url(cerber_get_opage().'&tab=activity').'">'.__('View Activity','cerber').'</a>'.
+		' | <a href="'.cerber_get_opage('activity').'">'.__('View Activity','cerber').'</a>'.
 		'</p></div>';
 	}
 	if (!cerber_is_my_page()) return;
@@ -921,7 +898,7 @@ function cerber_page_navi($total,$per_page = 20){
 		if ($start > $max_links) $links[]='<a disabled="disabled" href="'.esc_url(add_query_arg('pagen',$start - 1)).'" >&laquo;</a>';
 		for ($i=$start; $i <= $end; $i++) {
 			if($page!=$i) $links[]='<a href="'.esc_url(add_query_arg('pagen',$i)).'" >'.$i.'</a>';
-			else $links[]='<span class="cupage">'.$i.'</span> ';
+			else $links[]='<span class="cupage" style="font-size: 16px;">'.$i.'</span> ';
 		}
 		if($end < $last_page) $links[]='<a href="'.esc_url(add_query_arg('pagen',$i)).'" >&raquo;</a>';
 		$ret = '<div class="tablenav"><div class="tablenav-pages cerber-margin" style="float:left;">'.$total.' '._n('entry','entries',$total,'cerber').' &nbsp; '.implode(' ',$links).'</div></div>';
@@ -942,8 +919,8 @@ function cerber_get_pn(){
 add_filter('plugin_action_links','cerber_action_links',10,4);
 function cerber_action_links($actions, $plugin_file, $plugin_data, $context){
 	if($plugin_file == cerber_plug_in()){
-		$link[] = '<a href="'.admin_url(cerber_get_opage()).'">' . __('Settings') . '</a>';
-		$link[] = '<a href="'.admin_url(cerber_get_opage().'&tab=acl').'">' . __('Access Lists','cerber') . '</a>';
+		$link[] = '<a href="'.cerber_get_opage().'">' . __('Settings') . '</a>';
+		$link[] = '<a href="'.cerber_get_opage('acl').'">' . __('Access Lists','cerber') . '</a>';
 		$actions = array_merge ($link,$actions);
 	}
 	return $actions;

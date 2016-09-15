@@ -2,9 +2,9 @@
 Contributors: gioni
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SR8RJXFU35EW8
 Tags: security, access control, authentication, limit, login, access, admin, users, protect, protection, brute force, bruteforce, activity, log, logging, block, hide wp-admin, wp-login, wp-admin, fail2ban, monitoring, rename wp login, whitelist, blacklist, wordpress security, xmlrpc, user enumeration, hardening
-Requires at least: 3.3
-Tested up to: 4.5.3
-Stable tag: 2.7.2
+Requires at least: 3.9
+Tested up to: 4.6.1
+Stable tag: 2.9
 License: GPLv2
 
 Protects site against brute force attacks. Restrict login by IP access lists. Limit login attempts. Comprehensive control of user activity.
@@ -22,7 +22,7 @@ Hardening WordPress.
 * Monitors logins made by login forms, XML-RPC requests or auth cookies.
 * Permit or restrict logins by **White Access list** and **Black Access List** with IP or subnet.
 * Log all activities related to the logging in/out process.
-* Hide wp-login.php from possible attacks and return 404 HTTP Error.
+* Hide wp-login.php and wp-register.php from possible attacks and return 404 HTTP Error.
 * Hide wp-admin (dashboard) and return 404 HTTP Error when a user isn't logged in.
 * Make **custom URL for logging in** ([rename wp-login.php](http://wpcerber.com/how-to-rename-wp-login-php/)).
 * Immediately block IP or subnet when attempting to log in with **non-existent username**.
@@ -64,6 +64,7 @@ Massive botnet brute force attack? That's no longer a problem. **Citadel mode** 
 * Dutch, thanks to [Bernardo](https://twitter.com/bernardohulsman)
 * Français, thanks to [hardesfred](https://profiles.wordpress.org/hardesfred/)
 * Czech, thanks to [Hrohh](https://profiles.wordpress.org/hrohh/)
+* Portuguese, thanks to Felipe Turcheti
 * Український
 * Русский
 
@@ -81,7 +82,7 @@ BulletProof Security, SiteGuard WP Plugin, All In One WP Security & Firewall, Br
 
 * [Plugin Inspector reveals issues with installed plugins](https://wordpress.org/plugins/plugin-inspector/)
 
-Checks plugins for deprecated WordPress functions, known security vulnerabilities and some unsafe PHP function
+Checks plugins for deprecated WordPress functions, known security vulnerabilities and some unsafe PHP functions
 
 * [Translate sites with Google Translate Widget](https://wordpress.org/plugins/goo-translate-widget/)
 
@@ -178,6 +179,17 @@ To get access to you dashboard you need to copy WP Cerber Reset folder to the pl
 7. Beautiful widget for the dashboard to keep an eye on things. Get quick analytic with trends over 24 hours.
 
 == Changelog ==
+
+= 2.9 =
+* New: Checking for a prohibited username (login). You can specify list of logins manually on the new settings page (Users).
+* New: Rate limiting for notification letters. Set it on the main settings page.
+* New: If new user registration disabled, automatic redirection from wp-register.php to the login page is blocked (404 error). Remote IP will be locked out.
+* New: You can set user session expiration timeout now.
+* New: Define constant CERBER_IP_KEY if you want the plugin to use it as a key to obtain IP address from $_SERVER variable.
+* Update: Improved WP-CLI compatibility.
+* Update: All dates are displayed in a localized format with date_i18n function.
+* Fixed bugs: incorrect admin URL in notification letters for multisite with multiple domains configuration, lack of error message on the login form if IP is blocked, CSRF vulnerability on the import settings page
+* Removed deprecated function get_currentuserinfo().
 
 = 2.7.2 =
 * Fixed bug for non-English WordPress configuration: the plugin is unable to block IP in some server environment. If you have configured language other than English you have to install this release.

@@ -21,6 +21,9 @@
 
 */
 
+// If this file is called directly, abort executing.
+if ( ! defined( 'WPINC' ) ) { exit; }
+
 define('WHOIS_ERR_EXPIRE',300);
 define('WHOIS_OK_EXPIRE',24 * 3600);
 define('WHOIS_IO_TIMEOUT', 3);

@@ -5,7 +5,7 @@
 	Description: Protects site against brute force attacks. Comprehensive control of user activity. Restrict login by IP access lists. Limit login attempts. Feel free to contact developer via wpcerber@gmail.com or at the site <a href="http://wpcerber.com">wpcerber.com</a>.
 	Author: Gregory M
 	Author URI: http://wpcerber.com
-	Version: 2.7.2
+	Version: 2.9
 	Text Domain: cerber
 	Domain Path: /languages
 	Network: true
@@ -30,16 +30,18 @@
 
 */
 
+
 define('CERBER_LOG_TABLE','cerber_log');
 define('CERBER_ACL_TABLE','cerber_acl');
 define('CERBER_BLOCKS_TABLE','cerber_blocks');
 define('WP_LOGIN_SCRIPT','wp-login.php');
+define('WP_REG_SCRIPT','wp-register.php');
 define('WP_XMLRPC_SCRIPT','xmlrpc.php');
 define('WP_TRACKBACK_SCRIPT','wp-trackback.php');
 define('WP_PING_SCRIPT','wp-trackback.php');
 define('WP_SIGNUP_SCRIPT','wp-signup.php');
 define('CERBER_REQ_PHP','5.3.0');
-define('CERBER_REQ_WP','3.3');
+define('CERBER_REQ_WP','3.9');
 define('CERBER_FILE',__FILE__);
 
 
@@ -55,12 +57,14 @@ class WP_Cerber {
 	private $remote_ip;
 	private $status;
 	function __construct() {
-		if (cerber_get_options('proxy') && isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+		if (defined('CERBER_IP_KEY')) $this->remote_ip = filter_var($_SERVER[CERBER_IP_KEY],FILTER_VALIDATE_IP);
+		elseif (cerber_get_options('proxy') && isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             $list = explode(',',$_SERVER['HTTP_X_FORWARDED_FOR']);
             foreach ($list as $maybe_ip){
                 $this->remote_ip = filter_var(trim($maybe_ip),FILTER_VALIDATE_IP);
                 if ($this->remote_ip) break;
             }
+			if (!$this->remote_ip && isset($_SERVER['HTTP_X_REAL_IP'])) $this->remote_ip = filter_var($_SERVER['HTTP_X_REAL_IP'],FILTER_VALIDATE_IP);
         }
         else{
             if (isset($_SERVER['REMOTE_ADDR'])) $this->remote_ip = $_SERVER['REMOTE_ADDR'];
@@ -119,42 +123,23 @@ class WP_Cerber {
 $wp_cerber = new WP_Cerber();
 
 /*
-try {
-    $wp_cerber = new WP_Cerber();
-}
-catch(Exception $e) {
-    //wp_die($e->getMessage());
-    return;
-	//trigger_error($e->getMessage(), E_USER_NOTICE);
-}
-*/
-
-
-/*
-	Initialize global Cerber's variables and state
-*/
-
-add_action('init', 'cerber_init');
+ * 
+ * Initialize Cerber
+ *  
+ */
+add_action('plugins_loaded', 'cerber_init', 1);
+//add_action('init', 'cerber_init', 1);
 //add_action('login_head', 'cerber_init');
 function cerber_init(){
-	global $cerber_status;
+	global $cerber_status, $wp_cerber;
+    if (!is_object($wp_cerber)) $wp_cerber = new WP_Cerber();
 	if ( ! wp_next_scheduled( 'cerber_hourly' ) ) {
 		wp_schedule_event( time(), 'hourly', 'cerber_hourly');
 	}
-	//if (is_admin()) return;
-	/*
-	$cerber_status=0; // Default: OK!
-	if (cerber_is_citadel()) $cerber_status=3;
-	elseif (!cerber_is_allowed(cerber_get_ip())) {
-		if (cerber_acl_check(cerber_get_ip(),'B')) $cerber_status=1;
-		else $cerber_status=2;
-	}
-	*/
 }
 /*
 	Display login form if Custom login URL was requested.
 */
-//add_action('after_setup_theme', 'cerber_login_screen'); // @since 1.0
 add_action('init', 'cerber_login_screen'); // @since 1.6
 function cerber_login_screen(){
 	if ($path = cerber_get_options('loginpath')) {
@@ -182,14 +167,14 @@ function cerber_login_head(){
 	if (!cerber_is_allowed($wp_cerber->getRemoteIp())) $error = $wp_cerber->getErrorMsg();
 	elseif ($msg = $wp_cerber->getRemainMsg()) $error = $msg;
 }
-/*
-	Replace ANY system messages or add notify above login form if IP not allowed (blocked or locked out)
-*/
+/**
+ * Replace ANY system messages or add notify message above login form if IP is not allowed (blocked or locked out)
+ */
 add_filter('login_errors','cerber_login_errors'); // hook on POST if credentials was wrong
 function cerber_login_errors($errors) {
-	global $error,$wp_cerber;
+	global $error, $wp_cerber;
 	if (cerber_can_msg()) {
-		if (!cerber_is_allowed($wp_cerber->getRemoteIp())) $wp_cerber->getErrorMsg(); // replace for error msg
+		if (!cerber_is_allowed($wp_cerber->getRemoteIp())) $errors = $wp_cerber->getErrorMsg(); // replace for error msg
 		elseif (($msg = $wp_cerber->getRemainMsg()) && !$error) $errors.='<p>'.$msg; // add for informative msg
 	}
 	return $errors;
@@ -237,24 +222,32 @@ function cerber_redirect($location,$status){
 	return $location;
 }
 /*
-	Direct access to the php scripts - what will we do?
+	Direct access to the restricted WP php scripts - what will we do?
 */
 add_action('init', 'cerber_access_control');
 function cerber_access_control(){
 	global $wp_cerber, $current_user, $wp_query;
-	if (is_admin()) return; // speed up
+	if (is_admin()) return; // speed up?
 	if (cerber_acl_check($wp_cerber->getRemoteIp(),'W')) return; // @since 1.7. It's useful for some users
 	$opt = cerber_get_options();
 
-	$script = strrchr($_SERVER['SCRIPT_NAME'],'/');
+	$script = substr(strrchr($_SERVER['SCRIPT_NAME'],'/'),1);
 
-	if ($script == '/'.WP_LOGIN_SCRIPT || $script == '/'.WP_SIGNUP_SCRIPT) { // no direct access
-		if (cerber_get_options('wplogin')) cerber_block_add($wp_cerber->getRemoteIp(),__('Attempt to access','cerber').' '.$script);
-		if (cerber_get_options('loginnowp')) cerber_404_page();
+	if ($script) {
+		if ( $script == WP_LOGIN_SCRIPT || $script == WP_SIGNUP_SCRIPT || ($script == WP_REG_SCRIPT && !get_option( 'users_can_register' ))) { // no direct access
+			if ( $opt['wplogin'] ) {
+				cerber_block_add( $wp_cerber->getRemoteIp(), __( 'Attempt to access', 'cerber' ) . ' ' . $script );
+			}
+			if ( $opt['loginnowp'] ) {
+				cerber_404_page();
+			}
+		}
+		elseif ( $script == WP_XMLRPC_SCRIPT || $script == WP_TRACKBACK_SCRIPT ) { // no direct access
+			if ( $opt['xmlrpc'] ) {
+				cerber_404_page();
+			}
+		}
 	}
-    elseif ($script == '/'.WP_XMLRPC_SCRIPT || $script == '/'.WP_TRACKBACK_SCRIPT) { // no direct access
-        if ($opt['xmlrpc']) cerber_404_page();
-    }
 
 	if (isset($opt['xmlrpc']) && $opt['xmlrpc']) {
 		add_filter('xmlrpc_enabled', '__return_false');
@@ -282,6 +275,25 @@ function cerber_access_control(){
 		add_action( 'do_feed_atom_comments', 'cerber_404_page', 1 );
 	}
 }
+/**
+ * Control of prohibited logins
+ *
+ */
+remove_filter( 'authenticate', 'wp_authenticate_username_password', 20);
+add_filter( 'authenticate', 'cerber_auth_control', 20, 3 );
+function cerber_auth_control($user, $username, $password){
+	$list = cerber_get_options('prohibited');
+	if ($list && in_array($username,$list)){
+		cerber_block_add(null,__('Attempt to log in with prohibited username','cerber').': <b>'.$username.'</b>');
+		// Create with message which is identical default WP
+		return new WP_Error( 'incorrect_password',sprintf(
+			__( '<strong>ERROR</strong>: The password you entered for the username %s is incorrect.' ),
+			'<strong>' . $username . '</strong>'
+		));
+	}
+	return wp_authenticate_username_password($user, $username, $password);
+}
+
 /*
  * Disable pingback URL (hide from HEAD)
  */
@@ -297,7 +309,7 @@ function cerber_pingback_url( $output, $show ) {
  *
  */
 if (cerber_get_options('norest')){
-	if (!cerber_acl_check(cerber_get_ip(),'W')) {
+	if (!cerber_acl_check(null,'W')) {
 		add_action('init','cerber_remove_rest');
 	}
 }
@@ -313,8 +325,8 @@ function cerber_remove_rest(){
 	remove_action( 'template_redirect',          'rest_output_link_header', 11 );
 }
 /*
-	Generic admin/login redirection control
-*/
+ * Generic admin/login redirection control
+ */
 add_filter( 'wp_redirect', 'cerber_no_redirect',10,2);
 function cerber_no_redirect($location, $status){
 	global $current_user;
@@ -339,40 +351,8 @@ function cerber_canonical(){
 		if (!is_admin() && !empty($_GET['author'])) cerber_404_page();
 	}
 }
-
 /*
-	Return Error message in context
-*/
-/*
-function cerber_get_error_msg(){
-	global $cerber_status,$wpdb;
-	switch ($cerber_status ) {
-		case 1:
-		case 3: return __('You are not allowed to log in. Ask your administrator for assistance.','cerber');
-		case 2:
-			$block = cerber_get_block();
-			$min = 1 + ($block->block_until - time()) / 60;
-			return sprintf( __('You have reached the login attempts limit. Please try again in %d minutes.','cerber'),$min);
-			break;
-		default: return '';
-	}
-}
-*/
-/*
-	Return Remain message in context
-*/
-/*
-function cerber_get_remain_msg(){
-	$remain = cerber_get_remain_count();
-	if ($remain < cerber_get_options('attempts')) {
-		if ($remain == 0) $remain = 1; // with some settings or when lockout was manualy removed, still 1 attempts exists.
-		return sprintf(_n('You have only one attempt remaining.', 'You have %d attempts remaining.', $remain, 'cerber'), $remain);
-	}
-	return false;
-}
-*/
-/*
-	Can be message showed?
+	Can login form message be shown?
 */
 function cerber_can_msg(){
 	if (!isset($_REQUEST['action'])) return true;
@@ -391,8 +371,7 @@ add_action('auth_cookie_valid','cerber_cookie1',10,2);
 function cerber_cookie1($cookie_elements = null, $user = null){
 	global $current_user;
 	if (!$user) {
-		get_currentuserinfo();
-		$user = $current_user;
+		$user = wp_get_current_user();
 	}
 	$expire = time() + apply_filters( 'auth_cookie_expiration', 14 * 24 * 3600, $user->ID, true ) + ( 24 * 3600 );
 	cerber_set_cookie($expire);
@@ -458,6 +437,16 @@ function cerber_check_groove($hash = ''){
 	return false;
 }
 
+/**
+ * Set user session expiration
+ *
+ */
+add_filter( 'auth_cookie_expiration', function($expire){
+	$time = cerber_get_options('auth_expire');
+	if ($time) $expire = 60 * $time;
+	return $expire;
+});
+
 //  Track login/logout activity -------------------------------------------------------------------------
 
 add_action('wp_login', 'cerber_log_login',10,2);
@@ -468,8 +457,11 @@ function cerber_log_login($login, $user){
 }
 add_action( 'wp_logout', 'cerber_log_logout');
 function cerber_log_logout(){
-	global $wpdb,$wp_cerber,$blog_id,$user_ID;
-	get_currentuserinfo();
+	global $wpdb, $wp_cerber, $blog_id, $user_ID;
+	if (!$user_ID) {
+		$user = wp_get_current_user();
+		$user_ID = $user->ID;
+	}
 	if (!$wpdb->query($wpdb->prepare('INSERT INTO '. CERBER_LOG_TABLE . ' (ip,user_id,stamp,activity) VALUES (%s,%d,%d,%d)',$wp_cerber->getRemoteIp(),$user_ID,time(),6)));
 	update_site_option('cerber_last_error',"Unable to write log! Table: " . CERBER_LOG_TABLE);
 }
@@ -525,7 +517,7 @@ function cerber_password_reset($user){
 	update_site_option('cerber_last_error',"Unable to write log! Table: " . CERBER_LOG_TABLE);
 }
 
-// Block list (lockouts) routines ---------------------------------------------------------------------
+// Lockouts routines ---------------------------------------------------------------------
 
 function cerber_block_add($ip, $reason = '', $duration = null){
 	global $wpdb,$wp_cerber;
@@ -653,9 +645,12 @@ function cerber_acl_remove($ip){
 /*
 	Check ACL for IP. With C subnet also. Some extra lines for perfomance reason.
 */
-function cerber_acl_check($ip,$tag=''){
+function cerber_acl_check($ip, $tag=''){
 	global $wpdb, $wp_cerber;
-	if (!$ip) $ip = $wp_cerber->getRemoteIp();
+	if (!$ip) {
+		if (!is_object($wp_cerber)) $wp_cerber = new WP_Cerber();
+		$ip = $wp_cerber->getRemoteIp();
+	}
 	$ret = false;
 	if ($tag) {
 		if ($wpdb->get_var($wpdb->prepare('SELECT count(ip) FROM '. CERBER_ACL_TABLE . ' WHERE ip = %s AND tag = %s',$ip,$tag))) $ret = true;
@@ -795,11 +790,21 @@ function cerber_send_notify($type = '',$msg = ''){
 	global $wpdb;
 	if (!$type) return;
 
-	$to = cerber_get_email();
+	if ($type != 'newlurl') {
+		$rate = absint(cerber_get_options('emailrate'));
+		if ($rate) {
+			$last   = get_transient( 'cerber_last' );
+			$period = 60 * 60;  // per hour
+			if ($last) {
+				if ($last > (time() - $period / $rate)) {
+					return;
+				}
+			}
+			set_transient('cerber_last', time(), $period);
+		}
+	}
 
-	$gmt_offset=get_option('gmt_offset')*3600;
-	$tf=get_option('time_format');
-	$df=get_option('date_format');
+	$to = cerber_get_email();
 
 	$subj ='';
 	$body ='';
@@ -807,31 +812,44 @@ function cerber_send_notify($type = '',$msg = ''){
 	switch ($type) {
 		case 'citadel':
 			$max = $wpdb->get_var('SELECT MAX(stamp) FROM '.CERBER_LOG_TABLE.' WHERE  activity = 7');
-			$last_date = date($df.' '.$tf, $gmt_offset + $max);
+			$last_date = cerber_date($max);
+
 			$last = $wpdb->get_row('SELECT * FROM '.CERBER_LOG_TABLE.' WHERE stamp = '.$max.' AND activity = 7');
+			if (!$last) { // empty log table
+				$last = new stdClass();
+				$last->ip = '127.0.0.1';
+				$last->user_login = 'demo';
+			}
 
 			//$subj = '['.get_option('blogname').'] '.__('WP Cerber notify: Citadel mode is activated','cerber');
 			$subj = '['.get_option('blogname').'] '.__('WP Cerber notify','cerber').': '.__('Citadel mode is activated','cerber');
 
 			$body = sprintf(__('Citadel mode is activated after %d failed login attempts in %d minutes.','cerber'),cerber_get_options('cilimit'),cerber_get_options('ciperiod'))."\n\n";
-			$body .= sprintf(__('Last failed attempt was at %s from IP %s with user login: %s.','cerber'),$last_date,$last->ip,$last->user_login)."\n\n";
-			$body .= __('View activity in dashboard','cerber').': '.admin_url(cerber_get_opage('activity'))."\n\n";
-			$body .= __('Change notification settings','cerber').': '.admin_url(cerber_get_opage());
+			$body .= sprintf(__('Last failed attempt was at %s from IP %s with user login: %s.','cerber'),$last_date, $last->ip, $last->user_login)."\n\n";
+			$body .= __('View activity in dashboard','cerber').': '.cerber_get_opage('activity')."\n\n";
+			$body .= __('Change notification settings','cerber').': '.cerber_get_opage();
 		break;
 		case 'lockout':
 			$max = $wpdb->get_var('SELECT MAX(stamp) FROM '.CERBER_LOG_TABLE.' WHERE  activity IN (10,11)');
-			$last_date = date($df.' '.$tf, $gmt_offset + $max);
+			$last_date = cerber_date($max);
 			$last = $wpdb->get_row('SELECT * FROM '.CERBER_LOG_TABLE.' WHERE stamp = '.$max.' AND activity IN (10,11)');
+			if (!$last) { // empty log table
+				$last = new stdClass();
+				$last->ip = '127.0.0.1';
+				$last->user_login = 'demo';
+			}
+
 			if (!$active = $wpdb->get_var('SELECT count(ip) FROM '.CERBER_BLOCKS_TABLE)) $active = 0;
 
 			//$subj = '['.get_option('blogname').'] '.__('WP Cerber notify: Number of lockouts is growing up','cerber');
-			$subj = '['.get_option('blogname').'] '.__('WP Cerber notify','cerber').': '.__('Number of lockouts is growing up','cerber');
+			$subj = '['.get_option('blogname').'] '.__('WP Cerber notify','cerber').': '.__('Number of lockouts is increasing','cerber').' ('.$active.')';
 
 			$body = __('Number of active lockouts','cerber').': '.$active."\n\n";
 			//$body .= __('Last lockout was added','cerber').': '.$last_date."\n\n";
 			$body .= sprintf(__('Last lockout was added: %s for IP %s','cerber'),$last_date,$last->ip.' ('.@gethostbyaddr($last->ip).')')."\n\n";
-			$body .= __('View lockouts in dashboard','cerber').': '.admin_url(cerber_get_opage('lockouts'))."\n\n";
-			$body .= __('Change notification settings','cerber').': '.admin_url(cerber_get_opage());
+			$body .= __('View activity for this IP','cerber').': '.cerber_get_opage('activity').'&filter_ip='.$last->ip."\n\n";
+			$body .= __('View lockouts in dashboard','cerber').': '.cerber_get_opage('lockouts')."\n\n";
+			$body .= __('Change notification settings','cerber').': '.cerber_get_opage();
 		break;
 		case 'newlurl':
 			$subj = '['.get_option('blogname').'] '.__('WP Cerber notify','cerber').': '.__('New Custom login URL','cerber');
@@ -915,11 +933,13 @@ function cerber_plugin_file(){
 /*
 	Format date
 */
-function cerber_date($time){
+function cerber_date($timestamp){
 	$gmt_offset = get_option('gmt_offset') * 3600;
 	$tf = get_option('time_format');
 	$df = get_option('date_format');
-	return date($df.', '.$tf, $gmt_offset + $time);
+	//return date($df.', '.$tf, $gmt_offset + $timestamp);
+	//return date_i18n($df.', '.$tf, $gmt_offset + $timestamp).', '.date_i18n($tf, $gmt_offset + $timestamp);
+	return date_i18n($df, $gmt_offset + $timestamp).', '.date_i18n($tf, $gmt_offset + $timestamp);
 }
 /*
 	Plugin activation
@@ -999,11 +1019,11 @@ function cerber_activate(){
 	
 	update_site_option('cerber_admin_message',
 		'<img style="float:left; margin-left:-10px;" src="'.$assets_url.'/icon-128x128.png">'.
-        '<p style="font-size:120%;">'.__('WP Cerber is now active and has started protecting your site.','cerber').'</p>'.
+        '<p style="font-size:120%;">'.__('WP Cerber is now active and has started protecting your site','cerber').'</p>'.
 		' <p><b>'.__("It's important to check security settings.",'cerber').'</b> &nbsp;<a href="http://wpcerber.com/" target="_blank">'.__('Read our blog','cerber').'</a></p>'.
-		' <p> </p><p><span class="dashicons dashicons-admin-settings"></span> <a href="'.admin_url(cerber_get_opage('main')).'">'.__('Main Settings','cerber').'</a>'.
-		' <span style="margin-left:20px;" class="dashicons dashicons-admin-network"></span> <a href="'.admin_url(cerber_get_opage('acl')).'">'.__('Access Lists','cerber').'</a>'.
-		' <span style="margin-left:20px;" class="dashicons dashicons-shield-alt"></span> <a href="'.admin_url(cerber_get_opage('hardening')).'">'.__('Hardening','cerber').'</a>'.
+		' <p> </p><p><span class="dashicons dashicons-admin-settings"></span> <a href="'.cerber_get_opage('main').'">'.__('Main Settings','cerber').'</a>'.
+		' <span style="margin-left:20px;" class="dashicons dashicons-admin-network"></span> <a href="'.cerber_get_opage('acl').'">'.__('Access Lists','cerber').'</a>'.
+		' <span style="margin-left:20px;" class="dashicons dashicons-shield-alt"></span> <a href="'.cerber_get_opage('hardening').'">'.__('Hardening','cerber').'</a>'.
 		'</p>');
 
 	// Check for existing options
@@ -1037,8 +1057,7 @@ function cerber_stop_activating($msg){
 */
 add_filter( 'preprocess_comment' ,'cerber_add_uid');
 function cerber_add_uid($commentdata) {
-	global $current_user;
-	if (!$current_user->ID) get_currentuserinfo();
+	$current_user = wp_get_current_user();
 	$commentdata['user_ID'] = $current_user->ID;
 	return $commentdata;
 }

@@ -20,6 +20,9 @@
 
 */
 
+// If this file is called directly, abort executing.
+if ( ! defined( 'WPINC' ) ) { exit; }
+
 /**
  * RIPE REST API
  *
